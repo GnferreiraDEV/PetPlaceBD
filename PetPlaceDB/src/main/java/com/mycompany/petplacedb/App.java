@@ -1,20 +1,23 @@
 package com.mycompany.petplacedb;
 
-import com.mycompany.controller.CompraController;
-import com.mycompany.model.ItemCompra;
+import com.mycompany.controller.ServicoController;
+
 
 public class App {
 
     public static void main(String[] args) {
 
-        CompraController cc = new CompraController();
+       
+        
+        ServicoController sc = new ServicoController();
 
-        cc.registrar(
-                "12345678901",  // CPF que existe no MySQL
-                new ItemCompra("PROD_ABC123", 2),
-                new ItemCompra("PROD_XYZ999", 1)
-        );
+    // CADASTRAR SERVIÇOS
+    sc.cadastrar("Banho Completo", 59.90, true, false);
+    sc.cadastrar("Tosa Especial", 79.90, false, true);
 
-        System.out.println("Compra criada com sucesso!");
+    // LISTAR
+    System.out.println("\n--- LISTA DE SERVIÇOS ---");
+    sc.listar();
+
     }
 }
