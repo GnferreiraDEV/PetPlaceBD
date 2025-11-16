@@ -1,21 +1,20 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.petplacedb;
 
-import com.mycompany.controller.ProdutoController;
+import com.mycompany.controller.ClienteController;
 
 public class App {
+
     public static void main(String[] args) {
 
-        ProdutoController pc = new ProdutoController();
+        // ==========================
+// TESTE DE CLIENTE
+// ==========================
+ClienteController cli = new ClienteController();
 
-pc.cadastrar("Ração Premium", "Ração para cães adultos", 89.90, 50);
+System.out.println("=== CADASTRANDO CLIENTE ===");
+cli.registrar("12345678901", "Maria Silva", "61999998888", "maria@gmail.com", "Rua das Flores 100");
 
-pc.listar();
-
+System.out.println("Cliente cadastrado!");
 
     }
 }
-
