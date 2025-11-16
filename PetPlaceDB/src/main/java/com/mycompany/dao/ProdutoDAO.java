@@ -1,69 +1,65 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.dao;
 
-import com.mycompany.factory.MongoConnectionFactory;
+import com.mycompany.factory.MySQLConnectionFactory;
 import com.mycompany.model.Produto;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
 
-import static com.mongodb.client.model.Filters.eq;
-
-/**
- *
- * @author Gustavo
- */
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProdutoDAO {
 
-    private final MongoCollection<Document> collection;
-
-    public ProdutoDAO() {
-        MongoDatabase db = MongoConnectionFactory.getDatabase();
-        this.collection = db.getCollection("produtos");
-    }
-
     public void salvar(Produto p) {
-        Document doc = new Document("_id", p.getId())
-                .append("nome", p.getNome())
-                .append("descricao", p.getDescricao())
-                .append("preco", p.getPreco())
-                .append("estoque", p.getEstoque());
 
-        collection.insertOne(doc);
+        String sql = "INSERT INTO PRODUTO (NOME, DESCRICAO, PRECO, QUANTIDADE_ESTOQUE) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = MySQLConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, p.getNome());
+            stmt.setString(2, p.getDescricao());
+            stmt.setDouble(3, p.getPreco());
+            stmt.setInt(4, p.getQuantidadeEstoque());
+
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public Produto buscarPorId(String id) {
+    public List<Produto> listarTodos() {
 
-        Document d = collection.find(eq("_id", id)).first();
-        if (d == null) return null;
+        List<Produto> lista = new ArrayList<>();
 
-        Produto p = new Produto();
-        p.setId(d.getString("_id"));
-        p.setNome(d.getString("nome"));
-        p.setDescricao(d.getString("descricao"));
-        p.setPreco(d.getDouble("preco"));
-        p.setEstoque(d.getInteger("estoque"));
+        String sql = "SELECT * FROM PRODUTO";
 
-        return p;
-    }
+        try (Connection conn = MySQLConnectionFactory.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-    public void atualizar(Produto p) {
+            while (rs.next()) {
 
-        Document doc = new Document("_id", p.getId())
-                .append("nome", p.getNome())
-                .append("descricao", p.getDescricao())
-                .append("preco", p.getPreco())
-                .append("estoque", p.getEstoque());
+                Produto p = new Produto();
 
-        collection.replaceOne(eq("_id", p.getId()), doc);
-    }
+                p.setIdProduto(rs.getString("idPRODUTO"));
+                p.setNome(rs.getString("NOME"));
+                p.setDescricao(rs.getString("DESCRICAO"));
+                p.setPreco(rs.getDouble("PRECO"));
+                p.setQuantidadeEstoque(rs.getInt("QUANTIDADE_ESTOQUE"));
 
-    public void remover(String id) {
-        collection.deleteOne(eq("_id", id));
+                lista.add(p);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return lista;
     }
 }
-    

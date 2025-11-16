@@ -11,9 +11,10 @@ public class App {
 
         ProdutoController pc = new ProdutoController();
 
-        // CADASTRAR PRODUTO
-        pc.cadastrar("Ração Golden", "Ração premium 15kg", 129.90, 40);
-        System.out.println("Produto inserido!");
+pc.cadastrar("Ração Premium", "Ração para cães adultos", 89.90, 50);
+
+pc.listar();
+
 
     }
 }

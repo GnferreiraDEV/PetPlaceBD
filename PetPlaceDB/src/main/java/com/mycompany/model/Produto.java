@@ -1,37 +1,64 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.model;
 
-/**
- *
- * @author Gustavo
- */
 public class Produto {
-    
-    private String id;
+
+    private String idProduto;
     private String nome;
     private String descricao;
     private double preco;
-    private int estoque;
+    private int quantidadeEstoque;
 
-    public Produto() {}
+    // ----- CONSTRUTOR VAZIO -----
+    public Produto() {
+    }
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    // ----- CONSTRUTOR COMPLETO -----
+    public Produto(String nome, String descricao, double preco, int quantidadeEstoque) {
+        this.nome = nome;
+        this.descricao = descricao;
+        this.preco = preco;
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    // ----- GETTERS E SETTERS -----
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getIdProduto() {
+        return idProduto;
+    }
 
-    public double getPreco() { return preco; }
-    public void setPreco(double preco) { this.preco = preco; }
+    public void setIdProduto(String idProduto) {
+        this.idProduto = idProduto;
+    }
 
-    public int getEstoque() { return estoque; }
-    public void setEstoque(int estoque) { this.estoque = estoque; }
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public double getPreco() {
+        return preco;
+    }
+
+    public void setPreco(double preco) {
+        this.preco = preco;
+    }
+
+    public int getQuantidadeEstoque() {
+        return quantidadeEstoque;
+    }
+
+    public void setQuantidadeEstoque(int quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
 }
-    
-
