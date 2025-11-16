@@ -1,20 +1,20 @@
 package com.mycompany.petplacedb;
 
-import com.mycompany.controller.ClienteController;
+import com.mycompany.controller.CompraController;
+import com.mycompany.model.ItemCompra;
 
 public class App {
 
     public static void main(String[] args) {
 
-        // ==========================
-// TESTE DE CLIENTE
-// ==========================
-ClienteController cli = new ClienteController();
+        CompraController cc = new CompraController();
 
-System.out.println("=== CADASTRANDO CLIENTE ===");
-cli.registrar("12345678901", "Maria Silva", "61999998888", "maria@gmail.com", "Rua das Flores 100");
+        cc.registrar(
+                "12345678901",  // CPF que existe no MySQL
+                new ItemCompra("PROD_ABC123", 2),
+                new ItemCompra("PROD_XYZ999", 1)
+        );
 
-System.out.println("Cliente cadastrado!");
-
+        System.out.println("Compra criada com sucesso!");
     }
 }
