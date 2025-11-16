@@ -4,21 +4,17 @@
  */
 package com.mycompany.petplacedb;
 
-import com.mycompany.controller.UsuarioController;
+import com.mycompany.controller.ProdutoController;
 
 public class App {
-
     public static void main(String[] args) {
 
-        UsuarioController uc = new UsuarioController();
+        ProdutoController pc = new ProdutoController();
 
-    // CADASTRO
-    uc.registrar("Gustavo", "gustavo@email.com", "admin123", "admin");
-    System.out.println("Usuário cadastrado!");
-
-    // LOGIN
-    boolean ok = uc.login("gustavo@email.com", "admin123");
-    System.out.println("Login: " + ok);
+        // CADASTRAR PRODUTO
+        pc.cadastrar("Ração Golden", "Ração premium 15kg", 129.90, 40);
+        System.out.println("Produto inserido!");
 
     }
 }
+
