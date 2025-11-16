@@ -4,23 +4,21 @@
  */
 package com.mycompany.petplacedb;
 
-import com.mycompany.controller.AgendamentoController;
+import com.mycompany.controller.UsuarioController;
 
 public class App {
 
     public static void main(String[] args) {
 
-        AgendamentoController controller = new AgendamentoController();
+        UsuarioController uc = new UsuarioController();
 
-        controller.agendar(
-                "12345678901",
-                "SERV001",
-                "2025-11-20",
-                "10:30",
-                "PIX",
-                79.90
-        );
+    // CADASTRO
+    uc.registrar("Gustavo", "gustavo@email.com", "admin123", "admin");
+    System.out.println("Usuário cadastrado!");
 
-        System.out.println("Agendamento criado com sucesso!");
+    // LOGIN
+    boolean ok = uc.login("gustavo@email.com", "admin123");
+    System.out.println("Login: " + ok);
+
     }
 }
