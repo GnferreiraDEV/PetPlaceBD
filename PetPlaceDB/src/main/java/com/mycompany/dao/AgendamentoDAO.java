@@ -6,8 +6,8 @@ package com.mycompany.dao;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import factory.MongoConnectionFactory;
-import model.Agendamento;
+import com.mycompany.factory.MongoConnectionFactory;
+import com.mycompany.model.Agendamento;
 import org.bson.Document;
 
 /**
@@ -16,10 +16,6 @@ import org.bson.Document;
  */
 public class AgendamentoDAO {
     
-    
-
-public class AgendamentoDAO {
-
     private final MongoCollection<Document> collection;
 
     public AgendamentoDAO() {
