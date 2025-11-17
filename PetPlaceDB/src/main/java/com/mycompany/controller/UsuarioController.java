@@ -1,16 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.controller;
 
 import com.mycompany.service.UsuarioService;
-
-/**
- *
- * @author Gustavo
- */
-
+import com.mycompany.model.Usuario;
+import java.util.List;
 
 public class UsuarioController {
 
@@ -22,5 +14,25 @@ public class UsuarioController {
 
     public boolean login(String email, String senha) {
         return service.login(email, senha);
+    }
+
+    // --------------------------
+    // CRUD COMPLETO
+    // --------------------------
+
+    public Usuario buscarPorId(String id) {
+        return service.buscarPorId(id);
+    }
+
+    public List<Usuario> listar() {
+        return service.listar();
+    }
+
+    public void atualizar(Usuario u) {
+        service.atualizar(u);
+    }
+
+    public void deletar(String id) {
+        service.deletar(id);
     }
 }

@@ -25,4 +25,16 @@ public class ServicoController {
             );
         }
     }
+
+    public Servico buscar(String id) {
+        return service.buscarPorId(id);
+    }
+
+    public void atualizar(String id, String descricao, double preco, boolean banho, boolean tosa) {
+        service.atualizarServico(id, descricao, preco, banho, tosa);
+    }
+
+    public void deletar(String id) {
+        service.deletarServico(id);
+    }
 }

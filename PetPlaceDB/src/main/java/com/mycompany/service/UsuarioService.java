@@ -1,19 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.service;
 
 import com.mycompany.dao.UsuarioDAO;
 import com.mycompany.model.Usuario;
 import java.security.MessageDigest;
+import java.util.List;
 import java.util.UUID;
-
-/**
- *
- * @author Gustavo
- */
-
 
 public class UsuarioService {
 
@@ -22,32 +13,59 @@ public class UsuarioService {
     public void registrarUsuario(String nome, String email, String senha, String tipo) {
 
         Usuario u = new Usuario();
-        u.setId(UUID.randomUUID().toString());
+        u.setId_usuario(UUID.randomUUID().toString());
         u.setNome(nome);
-        u.setEmail(email);
-        u.setSenhaHash(gerarHash(senha));
-        u.setTipo(tipo);
+        u.setLogin(email);
+        u.setSenha(gerarHash(senha));
+        u.setId_grupo(tipo);
 
         dao.salvar(u);
     }
 
     public boolean login(String email, String senha) {
+        Usuario u = dao.buscarPorLogin(email);
 
-        var doc = dao.buscarPorEmail(email);
-
-        if (doc == null) return false;
+        if (u == null) return false;
 
         String senhaHash = gerarHash(senha);
 
-        return senhaHash.equals(doc.getString("senhaHash"));
+        return senhaHash.equals(u.getSenha());
     }
 
+    // --------------------------
+    // CRUD COMPLETO
+    // --------------------------
+
+    public Usuario buscarPorId(String id) {
+        return dao.buscarPorId(id);
+    }
+
+    public List<Usuario> listar() {
+        return dao.listarTodos();
+    }
+
+    public void atualizar(Usuario u) {
+
+        // Se a senha for atualizada, precisa rehash
+        if (!u.getSenha().startsWith("00")) { 
+            // <-- Se quiser detectar hash, ajusta isso
+            u.setSenha(gerarHash(u.getSenha()));
+        }
+
+        dao.atualizar(u);
+    }
+
+    public void deletar(String id) {
+        dao.deletar(id);
+    }
+
+    // --------------------------
+    // Hash
+    // --------------------------
     private String gerarHash(String senha) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-
             byte[] hash = md.digest(senha.getBytes());
-
             StringBuilder hexString = new StringBuilder();
 
             for (byte b : hash) {

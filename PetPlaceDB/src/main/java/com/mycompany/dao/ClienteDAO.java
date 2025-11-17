@@ -8,70 +8,103 @@ import java.util.List;
 
 public class ClienteDAO {
 
-    public void salvar(Cliente c) {
-        String sql = "INSERT INTO CLIENTE (CPF, NOME, TELEFONE, EMAIL, ENDERECO) VALUES (?,?,?,?,?)";
+    public void salvar(Cliente cliente) {
+        String sql = "INSERT INTO cliente (CPF, NOME, TELEFONE, EMAIL, ENDERECO) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = MySQLConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            ps.setString(1, c.getCpf());
-            ps.setString(2, c.getNome());
-            ps.setString(3, c.getTelefone());
-            ps.setString(4, c.getEmail());
-            ps.setString(5, c.getEndereco());
+            stmt.setString(1, cliente.getCpf());
+            stmt.setString(2, cliente.getNome());
+            stmt.setString(3, cliente.getTelefone());
+            stmt.setString(4, cliente.getEmail());
+            stmt.setString(5, cliente.getEndereco());
+            stmt.executeUpdate();
 
-            ps.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao salvar cliente: " + e.getMessage());
         }
     }
 
-    public Cliente buscarPorCPF(String cpf) {
-        String sql = "SELECT * FROM CLIENTE WHERE CPF = ?";
+    public void atualizar(Cliente cliente) {
+        String sql = "UPDATE cliente SET NOME=?, TELEFONE=?, EMAIL=?, ENDERECO=? WHERE CPF=?";
 
         try (Connection conn = MySQLConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            ps.setString(1, cpf);
-            ResultSet rs = ps.executeQuery();
+            stmt.setString(1, cliente.getNome());
+            stmt.setString(2, cliente.getTelefone());
+            stmt.setString(3, cliente.getEmail());
+            stmt.setString(4, cliente.getEndereco());
+            stmt.setString(5, cliente.getCpf());
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar cliente: " + e.getMessage());
+        }
+    }
+
+    public void deletar(String cpf) {
+        String sql = "DELETE FROM cliente WHERE CPF=?";
+
+        try (Connection conn = MySQLConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpf);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar cliente: " + e.getMessage());
+        }
+    }
+
+    public Cliente buscarPorCpf(String cpf) {
+        String sql = "SELECT * FROM cliente WHERE CPF=?";
+
+        try (Connection conn = MySQLConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                Cliente c = new Cliente();
-                c.setCpf(rs.getString("CPF"));
-                c.setNome(rs.getString("NOME"));
-                c.setTelefone(rs.getString("TELEFONE"));
-                c.setEmail(rs.getString("EMAIL"));
-                c.setEndereco(rs.getString("ENDERECO"));
-                return c;
+                return new Cliente(
+                    rs.getString("CPF"),
+                    rs.getString("NOME"),
+                    rs.getString("TELEFONE"),
+                    rs.getString("EMAIL"),
+                    rs.getString("ENDERECO")
+                );
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            return null;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar cliente: " + e.getMessage());
         }
-        return null;
     }
 
     public List<Cliente> listarTodos() {
+        String sql = "SELECT * FROM cliente";
         List<Cliente> lista = new ArrayList<>();
-        String sql = "SELECT * FROM CLIENTE";
 
         try (Connection conn = MySQLConnectionFactory.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Cliente c = new Cliente();
-                c.setCpf(rs.getString("CPF"));
-                c.setNome(rs.getString("NOME"));
-                c.setTelefone(rs.getString("TELEFONE"));
-                c.setEmail(rs.getString("EMAIL"));
-                c.setEndereco(rs.getString("ENDERECO"));
+                Cliente c = new Cliente(
+                    rs.getString("CPF"),
+                    rs.getString("NOME"),
+                    rs.getString("TELEFONE"),
+                    rs.getString("EMAIL"),
+                    rs.getString("ENDERECO")
+                );
                 lista.add(c);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar clientes: " + e.getMessage());
         }
 
         return lista;
