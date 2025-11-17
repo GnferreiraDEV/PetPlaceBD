@@ -5,7 +5,9 @@ import com.mycompany.model.Usuario;
 import java.security.MessageDigest;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UsuarioService {
 
     private final UsuarioDAO dao = new UsuarioDAO();

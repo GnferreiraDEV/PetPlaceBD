@@ -5,7 +5,9 @@ import com.mycompany.dao.ProdutoDAO;
 import com.mycompany.model.Compra;
 import com.mycompany.model.ItemCompra;
 import com.mycompany.model.Produto;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CompraService {
 
     private final CompraDAO dao = new CompraDAO();

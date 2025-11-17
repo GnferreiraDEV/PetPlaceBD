@@ -2,6 +2,7 @@ package com.mycompany.service;
 
 import com.mycompany.dao.ProdutoDAO;
 import com.mycompany.model.Produto;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 

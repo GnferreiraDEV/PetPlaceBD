@@ -2,9 +2,11 @@ package com.mycompany.service;
 
 import com.mycompany.dao.AgendamentoDAO;
 import com.mycompany.model.Agendamento;
+import org.springframework.stereotype.Service; //
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class AgendamentoService {
 
     private final AgendamentoDAO dao = new AgendamentoDAO();
@@ -14,7 +16,7 @@ public class AgendamentoService {
                                  String formaPagamento, double valor) {
 
         Agendamento ag = new Agendamento();
-        ag.setIdAgendamento(UUID.randomUUID().toString());
+        ag.setIdAgendamento(UUID.randomUUID().toString()); // Gera ID único
         ag.setCpfCliente(cpf);
         ag.setIdServico(idServico);
         ag.setDataAgendamento(data);
