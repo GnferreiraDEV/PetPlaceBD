@@ -1,15 +1,33 @@
 package com.mycompany.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "SERVICO")
 public class Servico {
 
+    @Id
+    @Column(name = "idSERVICO")
     private String idServico;
+
+    @Column(name = "DESCRICAO")
     private String descricao;
+
+    @Column(name = "PRECO")
     private double preco;
+
+    @Column(name = "BANHO")
     private boolean banho;
+
+    @Column(name = "TOSA")
     private boolean tosa;
 
     public Servico() {}
 
+    // Cole seus construtores e Getters/Setters abaixo...
     public Servico(String idServico, String descricao, double preco, boolean banho, boolean tosa) {
         this.idServico = idServico;
         this.descricao = descricao;
