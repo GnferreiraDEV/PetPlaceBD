@@ -2,11 +2,12 @@ package com.mycompany.service;
 
 import com.mycompany.dao.ServicoDAO;
 import com.mycompany.model.Servico;
-
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+
+@Service
 public class ServicoService {
 
     private final ServicoDAO dao = new ServicoDAO();
