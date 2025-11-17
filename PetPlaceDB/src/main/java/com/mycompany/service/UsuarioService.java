@@ -12,6 +12,22 @@ public class UsuarioService {
 
     public void registrarUsuario(String nome, String email, String senha, String tipo) {
 
+        // 1. Checar campos obrigatórios
+        if (nome == null || nome.isBlank()) {
+            System.out.println("Nome é obrigatório!");
+            return;
+        }
+        if (email == null || email.isBlank()) {
+            System.out.println("Login é obrigatório!");
+            return;
+        }
+
+        // 2. Checar se o login já existe
+        if (dao.buscarPorLogin(email) != null) {
+            System.out.println("Login já cadastrado!");
+            return;
+        }
+        
         Usuario u = new Usuario();
         u.setId_usuario(UUID.randomUUID().toString());
         u.setNome(nome);

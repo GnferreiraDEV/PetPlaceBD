@@ -3,9 +3,11 @@ package com.mycompany.dao;
 import com.mycompany.factory.MySQLConnectionFactory;
 import com.mycompany.model.Compra;
 import com.mycompany.model.ItemCompra;
+
+import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class CompraDAO {
 
@@ -13,31 +15,34 @@ public class CompraDAO {
 
         try (Connection conn = MySQLConnectionFactory.getConnection()) {
 
-            // 1) INSERE A COMPRA
-            String sqlCompra = "INSERT INTO COMPRA (idCOMPRA, CPF, DATA_COMPRA, VALOR_TOTAL) "
-                    + "VALUES (?, ?, NOW(), ?)";
+            // 1) CHAMA A PROCEDURE registrar_compra COM OUT PARAM
+            String sqlCompra = "{CALL registrar_compra(?, ?, ?)}"; // 3º parâmetro é OUT
+            try (CallableStatement cs = conn.prepareCall(sqlCompra)) {
+                cs.setString(1, compra.getCpfCliente());
+                cs.setDouble(2, compra.getValorTotal());
+                cs.registerOutParameter(3, Types.VARCHAR); // OUT param para id
+                cs.executeUpdate();
 
-            PreparedStatement ps = conn.prepareStatement(sqlCompra);
-            ps.setString(1, compra.getIdCompra());
-            ps.setString(2, compra.getCpfCliente());
-            ps.setDouble(3, compra.getValorTotal());
-            ps.executeUpdate();
+                // pega o id gerado pelo MySQL
+                String idGerado = cs.getString(3);
+                compra.setIdCompra(idGerado);
+            }
 
             // 2) INSERE OS ITENS
             String sqlItem = "INSERT INTO COMPRA_has_PRODUTO "
-                    + " (COMPRA_idCOMPRA, PRODUTO_idPRODUTO, QUANTIDADE)"
-                    + " VALUES (?, ?, ?)";
+                    + "(COMPRA_idCOMPRA, PRODUTO_idPRODUTO, QUANTIDADE) VALUES (?, ?, ?)";
 
             for (ItemCompra item : compra.getItens()) {
-                PreparedStatement psi = conn.prepareStatement(sqlItem);
-                psi.setString(1, compra.getIdCompra());
-                psi.setString(2, item.getIdProduto());
-                psi.setInt(3, item.getQuantidade());
-                psi.executeUpdate();
+                try (CallableStatement psi = conn.prepareCall(sqlItem)) {
+                    psi.setString(1, compra.getIdCompra());
+                    psi.setString(2, item.getIdProduto());
+                    psi.setInt(3, item.getQuantidade());
+                    psi.executeUpdate();
+                }
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Erro ao salvar compra: " + e.getMessage());
         }
     }
 }
