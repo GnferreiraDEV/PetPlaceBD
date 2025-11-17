@@ -8,8 +8,8 @@ public class App {
         ProdutoController pc = new ProdutoController();
 
         // CADASTRAR PRODUTOS
-//        pc.cadastrar("Ração Golden 10kg","A melhor do nordeste", 139.90, 10);
-//        pc.cadastrar("Brinquedo Bola","test", 19.90, 30);
+//        pc.cadastrar("teste","teste", 1.90, 10);
+//        pc.cadastrar("teste2","test2", 1.90, 30);
 
 //        // LISTAR
 //        System.out.println("\n--- LISTA DE PRODUTOS ---");
@@ -22,9 +22,9 @@ public class App {
 //        pc.listar();
 //
 //        // EXCLUIR
-        System.out.println("\n--- EXCLUINDO PRODUTO 2 ---");
-        pc.deletar("e4fc6f25-d011-4e10-9772-ca08d27f18a0");
-
+//        System.out.println("\n--- EXCLUINDO PRODUTO 2 ---");
+//        pc.deletar("e4fc6f25-d011-4e10-9772-ca08d27f18a0");
+//
         pc.listar();
     }
 }

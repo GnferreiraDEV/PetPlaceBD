@@ -13,16 +13,15 @@ import java.util.List;
 public class ProdutoDAO {
 
     public void salvar(Produto p) {
-        String sql = "INSERT INTO PRODUTO (idPRODUTO, NOME, DESCRICAO, PRECO, QUANTIDADE_ESTOQUE) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PRODUTO (idPRODUTO, NOME, DESCRICAO, PRECO, QUANTIDADE_ESTOQUE) VALUES (gerar_id('PROD'), ?, ?, ?, ?);";
 
         try (Connection conn = MySQLConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, p.getIdProduto());
-            stmt.setString(2, p.getNome());
-            stmt.setString(3, p.getDescricao());
-            stmt.setDouble(4, p.getPreco());
-            stmt.setInt(5, p.getQuantidadeEstoque());
+            stmt.setString(1, p.getNome());
+            stmt.setString(2, p.getDescricao());
+            stmt.setDouble(3, p.getPreco());
+            stmt.setInt(4, p.getQuantidadeEstoque());
             stmt.executeUpdate();
 
         } catch (SQLException e) {

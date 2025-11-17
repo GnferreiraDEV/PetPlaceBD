@@ -4,7 +4,6 @@ import com.mycompany.dao.ProdutoDAO;
 import com.mycompany.model.Produto;
 
 import java.util.List;
-import java.util.UUID;
 
 public class ProdutoService {
 
@@ -12,9 +11,7 @@ public class ProdutoService {
 
     // CREATE
     public void cadastrarProduto(String nome, String descricao, double preco, int quantidade) {
-        String id = "PROD_" + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
-
-        Produto p = new Produto(id, nome, descricao, preco, quantidade);
+        Produto p = new Produto(null, nome, descricao, preco, quantidade);
         dao.salvar(p);
     }
 
