@@ -1,15 +1,33 @@
 package com.mycompany.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "PRODUTO")
 public class Produto {
-    
+
+    @Id
+    @Column(name = "idPRODUTO")
     private String idProduto;
+
+    @Column(name = "NOME")
     private String nome;
+
+    @Column(name = "DESCRICAO")
     private String descricao;
+
+    @Column(name = "PRECO")
     private double preco;
+
+    @Column(name = "QUANTIDADE_ESTOQUE")
     private int quantidadeEstoque;
 
     public Produto() {}
 
+    // Cole seus construtores e Getters/Setters...
     public Produto(String idProduto, String nome, String descricao, double preco, int quantidadeEstoque) {
         this.idProduto = idProduto;
         this.nome = nome;
@@ -17,7 +35,7 @@ public class Produto {
         this.preco = preco;
         this.quantidadeEstoque = quantidadeEstoque;
     }
-    
+
     public String getIdProduto() { return idProduto; }
     public void setIdProduto(String idProduto) { this.idProduto = idProduto; }
 

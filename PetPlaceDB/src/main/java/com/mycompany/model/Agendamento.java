@@ -1,25 +1,43 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.model;
 
-/**
- *
- * @author Gustavo
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "AGENDAMENTO")
 public class Agendamento {
+
+    @Id // 3. Chave Primária
+    @Column(name = "idAGENDAMENTO") // Liga 'idAgendamento' com 'idAGENDAMENTO'
     private String idAgendamento;
+
+    @Column(name = "CPF_CLIENTE") // Liga com a coluna do banco
     private String cpfCliente;
+
+    @Column(name = "SERVICO_idSERVICO") // ATENÇÃO: No seu SQL está assim
     private String idServico;
+
+    @Column(name = "DATA_AGENDAMENTO")
     private String dataAgendamento;
+
+    @Column(name = "HORA_AGENDAMENTO")
     private String horaAgendamento;
+
+    @Column(name = "VALOR")
     private double valor;
+
+    @Column(name = "FORMA_PAGAMENTO")
     private String formaPagamento;
+
+    @Column(name = "STATUS")
     private String status;
 
+    // Construtor Vazio (Obrigatório para o JPA)
     public Agendamento() {}
 
+    // Construtor Cheio
     public Agendamento(String idAgendamento, String cpfCliente, String idServico, String dataAgendamento,
                        String horaAgendamento, double valor, String formaPagamento, String status) {
         this.idAgendamento = idAgendamento;
@@ -32,6 +50,7 @@ public class Agendamento {
         this.status = status;
     }
 
+    // Getters e Setters (Iguais ao que você já tinha)
     public String getIdAgendamento() { return idAgendamento; }
     public void setIdAgendamento(String idAgendamento) { this.idAgendamento = idAgendamento; }
 
