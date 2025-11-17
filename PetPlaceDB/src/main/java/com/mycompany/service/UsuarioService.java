@@ -1,99 +1,63 @@
 package com.mycompany.service;
 
-import com.mycompany.dao.UsuarioDAO;
 import com.mycompany.model.Usuario;
-import java.security.MessageDigest;
+import com.mycompany.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarioService {
 
-    private final UsuarioDAO dao = new UsuarioDAO();
+    @Autowired
+    private UsuarioRepository repository;
 
     public void registrarUsuario(String nome, String email, String senha, String tipo) {
+        if (nome == null || nome.isBlank()) throw new RuntimeException("Nome é obrigatório!");
+        if (email == null || email.isBlank()) throw new RuntimeException("Login é obrigatório!");
+        if (repository.findByLogin(email) != null) throw new RuntimeException("Login já cadastrado!");
 
-        // 1. Checar campos obrigatórios
-        if (nome == null || nome.isBlank()) {
-            System.out.println("Nome é obrigatório!");
-            return;
-        }
-        if (email == null || email.isBlank()) {
-            System.out.println("Login é obrigatório!");
-            return;
-        }
-
-        // 2. Checar se o login já existe
-        if (dao.buscarPorLogin(email) != null) {
-            System.out.println("Login já cadastrado!");
-            return;
-        }
-        
         Usuario u = new Usuario();
-        u.setId_usuario(UUID.randomUUID().toString());
+        u.setId_usuario("USR_" + UUID.randomUUID().toString().substring(0, 8));
         u.setNome(nome);
         u.setLogin(email);
-        u.setSenha(gerarHash(senha));
+
+        // MUDANÇA 1: Salva a senha direto (Texto Puro)
+        u.setSenha(senha);
+
         u.setId_grupo(tipo);
 
-        dao.salvar(u);
+        repository.save(u);
     }
 
     public boolean login(String email, String senha) {
-        Usuario u = dao.buscarPorLogin(email);
+        Usuario u = repository.findByLogin(email);
 
         if (u == null) return false;
 
-        String senhaHash = gerarHash(senha);
-
-        return senhaHash.equals(u.getSenha());
+        // MUDANÇA 2: Compara direto a senha digitada com a do banco
+        return senha.equals(u.getSenha());
     }
 
-    // --------------------------
-    // CRUD COMPLETO
-    // --------------------------
+    public Usuario buscarPorLogin(String login) {
+        return repository.findByLogin(login);
+    }
 
     public Usuario buscarPorId(String id) {
-        return dao.buscarPorId(id);
+        return repository.findById(id).orElse(null);
     }
 
     public List<Usuario> listar() {
-        return dao.listarTodos();
+        return repository.findAll();
     }
 
     public void atualizar(Usuario u) {
-
-        // Se a senha for atualizada, precisa rehash
-        if (!u.getSenha().startsWith("00")) { 
-            // <-- Se quiser detectar hash, ajusta isso
-            u.setSenha(gerarHash(u.getSenha()));
-        }
-
-        dao.atualizar(u);
+        // MUDANÇA 3: Não faz hash na atualização
+        repository.save(u);
     }
 
     public void deletar(String id) {
-        dao.deletar(id);
-    }
-
-    // --------------------------
-    // Hash
-    // --------------------------
-    private String gerarHash(String senha) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(senha.getBytes());
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hash) {
-                hexString.append(String.format("%02x", b));
-            }
-
-            return hexString.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar hash", e);
-        }
+        repository.deleteById(id);
     }
 }

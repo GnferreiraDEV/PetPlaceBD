@@ -19,16 +19,17 @@ public class Produto {
     @Column(name = "DESCRICAO")
     private String descricao;
 
+    // MUDANÇA 1: De 'double' para 'Double' (Aceita Null)
     @Column(name = "PRECO")
-    private double preco;
+    private Double preco;
 
+    // MUDANÇA 2: De 'int' para 'Integer' (Aceita Null)
     @Column(name = "QUANTIDADE_ESTOQUE")
-    private int quantidadeEstoque;
+    private Integer quantidadeEstoque;
 
     public Produto() {}
 
-    // Cole seus construtores e Getters/Setters...
-    public Produto(String idProduto, String nome, String descricao, double preco, int quantidadeEstoque) {
+    public Produto(String idProduto, String nome, String descricao, Double preco, Integer quantidadeEstoque) {
         this.idProduto = idProduto;
         this.nome = nome;
         this.descricao = descricao;
@@ -45,9 +46,9 @@ public class Produto {
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public double getPreco() { return preco; }
-    public void setPreco(double preco) { this.preco = preco; }
+    public Double getPreco() { return preco; }
+    public void setPreco(Double preco) { this.preco = preco; }
 
-    public int getQuantidadeEstoque() { return quantidadeEstoque; }
-    public void setQuantidadeEstoque(int quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
+    public Integer getQuantidadeEstoque() { return quantidadeEstoque; }
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) { this.quantidadeEstoque = quantidadeEstoque; }
 }

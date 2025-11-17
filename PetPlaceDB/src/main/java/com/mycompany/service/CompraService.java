@@ -1,42 +1,42 @@
 package com.mycompany.service;
 
-import com.mycompany.dao.CompraDAO;
-import com.mycompany.dao.ProdutoDAO;
 import com.mycompany.model.Compra;
 import com.mycompany.model.ItemCompra;
-import com.mycompany.model.Produto;
+import com.mycompany.repository.CompraRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 public class CompraService {
 
-    private final CompraDAO dao = new CompraDAO();
-    private final ProdutoDAO produtoDAO = new ProdutoDAO(); // pra pegar preço do produto
+    @Autowired
+    private CompraRepository repository;
 
-    public void registrarCompra(String cpfCliente, ItemCompra... itens) {
+    @Transactional // Garante que ou salva tudo, ou não salva nada
+    public void realizarCompra(Compra compra) {
 
-        Compra compra = new Compra();
-        compra.setCpfCliente(cpfCliente);
+        // 1. Prepara o Cabeçalho da Compra
+        String idUnico = "CP_" + UUID.randomUUID().toString().substring(0, 8);
+        compra.setIdCompra(idUnico);
+        compra.setDataCompra(LocalDate.now().toString()); // Data de hoje
 
-        double total = 0;
+        // 2. Salva a Compra (Tabela COMPRA)
+        repository.save(compra);
 
-        for (ItemCompra it : itens) {
-            compra.addItem(it);
-
-            // Buscar preço atualizado do produto no banco
-            Produto produto = produtoDAO.buscarPorId(it.getIdProduto());
-            if (produto != null) {
-                total += produto.getPreco() * it.getQuantidade();
-            } else {
-                throw new RuntimeException("Produto não encontrado: " + it.getIdProduto());
-            }
+        // 3. Salva os Itens (Tabela COMPRA_has_PRODUTO)
+        // Varre a lista que veio do Front-end
+        for (ItemCompra item : compra.getItens()) {
+            repository.salvarItemCompra(
+                    idUnico,
+                    item.getIdProduto(),
+                    item.getQuantidade()
+            );
         }
 
-        compra.setValorTotal(total);
-
-        // Chama o DAO para salvar a compra e os itens
-        dao.salvar(compra);
-
-        System.out.println("Compra registrada com sucesso! ID: " + compra.getIdCompra() + ", Total: R$" + total);
+        // Obs: Sua Trigger no banco vai baixar o estoque automaticamente!
     }
 }

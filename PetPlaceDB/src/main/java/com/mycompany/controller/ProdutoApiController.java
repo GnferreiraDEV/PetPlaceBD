@@ -3,15 +3,17 @@ package com.mycompany.controller;
 import com.mycompany.model.Produto;
 import com.mycompany.service.ProdutoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*; // Importa todas as anotações web
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
-@RestController // 1. Diz ao Spring que é um Controller de API (retorna JSON)
-@RequestMapping("/api/produtos") // 2. Define o endereço base (ex: /api/produtos)
+@RestController
+@RequestMapping("/api/produtos")
+@CrossOrigin(origins = "*") // Libera o acesso para o seu site (Front-end)
 public class ProdutoApiController {
 
-    // 3. Injeta o ProdutoService que acabamos de modernizar
     private final ProdutoService service;
 
     @Autowired
@@ -19,50 +21,49 @@ public class ProdutoApiController {
         this.service = service;
     }
 
-    // --- ENDPOINTS ---
-
-    // CREATE (POST /api/produtos)
+    // CREATE (POST)
     @PostMapping
-    public void cadastrar(@RequestBody Produto produto) {
-        // 4. @RequestBody converte o JSON enviado para um objeto Produto
-        //    (Note que o ID será gerado dentro do serviço)
-        service.cadastrarProduto(
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
-                produto.getQuantidadeEstoque()
-        );
+    public ResponseEntity<?> cadastrar(@RequestBody Produto produto) {
+        try {
+            // Passamos o objeto inteiro. O Service vai gerar o ID se faltar.
+            Produto salvo = service.salvar(produto);
+            return ResponseEntity.ok(salvo);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("mensagem", "Erro ao salvar: " + e.getMessage()));
+        }
     }
 
-    // READ (GET /api/produtos)
+    // READ (GET Lista)
     @GetMapping
     public List<Produto> listar() {
-        // 5. O Spring converte esta lista para JSON automaticamente
-        return service.listarProdutos();
+        // O nome do método no Service agora é 'listarTodos'
+        return service.listarTodos();
     }
 
-    // READ (GET /api/produtos/PROD_12345)
+    // READ (GET Único)
     @GetMapping("/{id}")
-    public Produto buscar(@PathVariable String id) {
-        // 6. @PathVariable pega o 'id' que veio na URL
-        return service.buscarProduto(id);
+    public ResponseEntity<?> buscar(@PathVariable String id) {
+        Produto p = service.buscarPorId(id);
+        if (p != null) {
+            return ResponseEntity.ok(p);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    // UPDATE (PUT /api/produtos/PROD_12345)
+    // UPDATE (PUT)
     @PutMapping("/{id}")
-    public void atualizar(@PathVariable String id, @RequestBody Produto produto) {
-        service.atualizarProduto(
-                id, // Usa o ID da URL como garantia
-                produto.getNome(),
-                produto.getDescricao(),
-                produto.getPreco(),
-                produto.getQuantidadeEstoque()
-        );
+    public ResponseEntity<?> atualizar(@PathVariable String id, @RequestBody Produto produto) {
+        // Garante que o ID do objeto seja o mesmo da URL para não criar duplicado
+        produto.setIdProduto(id);
+
+        Produto salvo = service.salvar(produto);
+        return ResponseEntity.ok(salvo);
     }
 
-    // DELETE (DELETE /api/produtos/PROD_12345)
+    // DELETE
     @DeleteMapping("/{id}")
-    public void deletar(@PathVariable String id) {
-        service.deletarProduto(id);
+    public ResponseEntity<?> deletar(@PathVariable String id) {
+        service.deletar(id);
+        return ResponseEntity.ok(Map.of("mensagem", "Produto removido com sucesso."));
     }
 }

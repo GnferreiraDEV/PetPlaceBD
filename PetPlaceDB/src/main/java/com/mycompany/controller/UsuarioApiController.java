@@ -26,16 +26,20 @@ public class UsuarioApiController {
         String email = credenciais.get("login");
         String senha = credenciais.get("senha");
 
-
         boolean sucesso = service.login(email, senha);
 
         if (sucesso) {
+            // BUSCA O USUÁRIO COMPLETO PARA RETORNAR OS DADOS DE PERMISSÃO
+            // Você precisa ter criado o método 'buscarPorLogin' no Service (veja abaixo)
+            Usuario u = service.buscarPorLogin(email);
 
             return ResponseEntity.ok().body(Map.of(
                     "mensagem", "Login realizado com sucesso!",
                     "autenticado", true,
-                    "usuario", email // Retorna quem logou
-                    // "grupo", usuarioLogado.getId_grupo()
+                    "usuario", email,
+                    "nome", u.getNome(),
+                    "id_usuario", u.getId_usuario(), // <--- CRUCIAL: O Front-end vai guardar isso
+                    "grupo", u.getId_grupo()         // <--- CRUCIAL: Para saber se é ADMIN
             ));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
