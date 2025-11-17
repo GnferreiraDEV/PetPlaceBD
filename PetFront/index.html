@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetPlace - Início</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Olá, <span id="nomeUsuario">Usuário</span> 👋</h1>
+            <a href="#" onclick="logout()" class="btn-logout">Sair</a>
+        </div>
+
+        <div class="grid-menu">
+            <a href="agendar.html" class="card-menu">
+                <span class="icon">📅</span>
+                <h3>Agendamento</h3>
+                <p>Marcar banho e tosa.</p>
+            </a>
+
+            <a href="venda.html" class="card-menu">
+                <span class="icon">🛒</span>
+                <h3>Nova Venda</h3>
+                <p>Vender produtos.</p>
+            </a>
+
+            <a href="produtos.html" class="card-menu">
+                <span class="icon">📦</span>
+                <h3>Estoque</h3>
+                <p>Gerenciar produtos.</p>
+            </a>
+
+            <a href="clientes.html" class="card-menu">
+                <span class="icon">👥</span>
+                <h3>Clientes</h3>
+                <p>Gerenciar clientes.</p>
+            </a>
+            <a href="relatorios.html" class="card-menu">
+                <span class="icon">📊</span>
+                <h3>Relatórios</h3>
+                <p>Ver histórico completo.</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Verifica se o usuário está logado
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+
+        if (!usuarioLogado) {
+            window.location.href = "login.html";
+        } else {
+            const usuarioObj = JSON.parse(usuarioLogado);
+            document.getElementById('nomeUsuario').innerText = usuarioObj.nome || usuarioObj.usuario || "Visitante";
+        }
+
+        // 2. Função de Logout
+        function logout() {
+            localStorage.removeItem('usuarioLogado');
+            window.location.href = "login.html";
+        }
+    </script>
+
+</body>
+
+</html>

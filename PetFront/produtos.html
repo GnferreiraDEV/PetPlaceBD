@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos - PetPlace</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="page-header">
+            <h2>📦 Gerenciar Produtos</h2>
+            <a href="index.html" class="btn-voltar">Voltar</a>
+        </div>
+
+        <div class="card-container" style="max-width: 100%; margin-bottom: 30px; text-align: left;">
+            <h3>Novo Produto</h3>
+            <form id="formProduto" style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                <div>
+                    <label>Nome</label>
+                    <input type="text" id="nome" placeholder="Ex: Ração Premium" required>
+                </div>
+                <div>
+                    <label>Preço (R$)</label>
+                    <input type="number" id="preco" step="0.01" placeholder="0.00" required>
+                </div>
+                <div>
+                    <label>Estoque</label>
+                    <input type="number" id="estoque" placeholder="Qtd" required>
+                </div>
+                <button type="submit" id="btnSalvar" class="btn-primary" style="margin-top: 0; height: 46px;">Salvar</button>
+            </form>
+            <input type="text" id="descricao" placeholder="Descrição do produto (Opcional)" style="margin-top: 10px;">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Descrição</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/produtos';
+
+        // 1. RECUPERAR DADOS DO USUÁRIO LOGADO
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        
+        // Verifica se é admin (ajuste conforme o retorno exato do seu Java, pode ser "ADMIN" ou "admin")
+        const isAdmin = usuarioLogado && usuarioLogado.grupo && usuarioLogado.grupo.toUpperCase() === 'ADMIN';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            ajustarPermissoes();
+            listarProdutos();
+        });
+
+        // Função para esconder/bloquear elementos se não for admin
+        function ajustarPermissoes() {
+            if (!isAdmin) {
+                // Esconde o botão Salvar
+                const btnSalvar = document.getElementById('btnSalvar');
+                if (btnSalvar) btnSalvar.style.display = 'none';
+
+                // Desabilita os inputs para ninguém digitar
+                document.getElementById('nome').disabled = true;
+                document.getElementById('preco').disabled = true;
+                document.getElementById('estoque').disabled = true;
+                document.getElementById('descricao').disabled = true;
+            }
+        }
+
+        async function listarProdutos() {
+            try {
+                const res = await fetch(API_URL);
+                const produtos = await res.json();
+                
+                const tabela = document.getElementById('tabelaCorpo');
+                tabela.innerHTML = '';
+
+                produtos.forEach(p => {
+                    // Lógica do botão Excluir: Só aparece se for Admin
+                    let botaoExcluir = '';
+                    if (isAdmin) {
+                        botaoExcluir = `<button onclick="deletar('${p.idProduto}')" class="btn-acao">Excluir</button>`;
+                    }
+
+                    tabela.innerHTML += `
+                        <tr>
+                            <td>${p.nome}</td>
+                            <td>${p.descricao || '-'}</td>
+                            <td>R$ ${p.preco.toFixed(2)}</td>
+                            <td>${p.quantidadeEstoque}</td>
+                            <td>${botaoExcluir}</td>
+                        </tr>
+                    `;
+                });
+            } catch (erro) {
+                console.error('Erro ao listar:', erro);
+            }
+        }
+
+        document.getElementById('formProduto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!isAdmin) {
+                alert('Permissão negada.');
+                return;
+            }
+
+            const produto = {
+                nome: document.getElementById('nome').value,
+                descricao: document.getElementById('descricao').value,
+                preco: parseFloat(document.getElementById('preco').value),
+                quantidadeEstoque: parseInt(document.getElementById('estoque').value)
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'user-id': usuarioLogado.id_usuario // Envia o ID para o Java conferir
+                    },
+                    body: JSON.stringify(produto)
+                });
+                
+                if(res.ok) {
+                    alert('Produto Salvo!');
+                    document.getElementById('formProduto').reset();
+                    document.getElementById('descricao').value = '';
+                    listarProdutos();
+                } else {
+                    // Se o Back-end retornar 403 (Forbidden)
+                    const erro = await res.json();
+                    alert('Erro: ' + (erro.mensagem || 'Falha ao salvar'));
+                }
+            } catch (erro) {
+                alert('Erro ao conectar.');
+            }
+        });
+
+        async function deletar(id) {
+            if(confirm('Confirmar exclusão?')) {
+                try {
+                    await fetch(`${API_URL}/${id}`, { 
+                        method: 'DELETE',
+                        headers: {
+                            'user-id': usuarioLogado.id_usuario // Envia o ID para validar permissão
+                        }
+                    });
+                    listarProdutos();
+                } catch (erro) {
+                    alert('Erro ao deletar.');
+                }
+            }
+        }
+    </script>
+</body>
+</html>

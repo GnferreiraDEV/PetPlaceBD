@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios - PetPlace</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .grid-relatorios { display: grid; grid-template-columns: 1fr; gap: 40px; }
+        @media (min-width: 1200px) { .grid-relatorios { grid-template-columns: 1fr 1fr; } }
+        h3 { color: #555; border-left: 5px solid #007bff; padding-left: 10px; margin-bottom: 15px; }
+        .status-agendado { color: orange; font-weight: bold; }
+        .status-concluido { color: green; font-weight: bold; }
+        .status-cancelado { color: red; font-weight: bold; }
+        .valor-destaque { color: #28a745; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="page-header">
+            <h2>📊 Relatórios e Histórico</h2>
+            <a href="index.html" class="btn-voltar">Voltar</a>
+        </div>
+
+        <div class="grid-relatorios">
+            <section>
+                <h3>📅 Histórico de Agendamentos</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Cliente</th>
+                                <th>Serviço</th>
+                                <th>Valor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAgendamentos">
+                            <tr><td colspan="5" style="text-align:center">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section>
+                <h3>🛒 Vendas Realizadas</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Cliente (CPF)</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaVendas">
+                            <tr><td colspan="3" style="text-align:center">Carregando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // 1. RECUPERA O USUÁRIO LOGADO
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioLogado'));
+        // Se não tiver usuário logado, usa string vazia (vai retornar lista vazia do back)
+        const userId = usuarioLogado ? usuarioLogado.id_usuario : '';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!userId) {
+                alert("Você precisa fazer login novamente.");
+                window.location.href = "login.html";
+                return;
+            }
+            carregarAgendamentos();
+            carregarVendas();
+        });
+
+        // --- 2. BUSCAR AGENDAMENTOS (Enviando ID) ---
+        async function carregarAgendamentos() {
+            try {
+                const res = await fetch('http://localhost:8080/api/agendamentos', {
+                    method: 'GET',
+                    headers: { 
+                        'user-id': userId // <--- O SEGREDO: Envia o ID para o filtro funcionar
+                    }
+                });
+                const lista = await res.json();
+                
+                const tbody = document.getElementById('tabelaAgendamentos');
+                tbody.innerHTML = '';
+
+                if(lista.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center">Nenhum histórico encontrado.</td></tr>';
+                    return;
+                }
+
+                lista.forEach(a => {
+                    const dataFormatada = a.dataAgendamento.split('-').reverse().join('/');
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${dataFormatada} às ${a.horaAgendamento}</td>
+                            <td>${a.cpfCliente}</td>
+                            <td>${a.idServico}</td>
+                            <td>R$ ${a.valor.toFixed(2)}</td>
+                            <td class="status-${a.status ? a.status.toLowerCase() : ''}">${a.status || 'AGENDADO'}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tabelaAgendamentos').innerHTML = '<tr><td colspan="5" style="color:red; text-align:center">Erro ao conectar.</td></tr>';
+            }
+        }
+
+        // --- 3. BUSCAR VENDAS (Enviando ID) ---
+        async function carregarVendas() {
+            try {
+                const res = await fetch('http://localhost:8080/api/compras', {
+                    method: 'GET',
+                    headers: { 
+                        'user-id': userId // <--- O SEGREDO: Envia o ID para o filtro funcionar
+                    }
+                });
+                const lista = await res.json();
+                
+                const tbody = document.getElementById('tabelaVendas');
+                tbody.innerHTML = '';
+
+                if(lista.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center">Nenhuma compra encontrada.</td></tr>';
+                    return;
+                }
+
+                lista.forEach(c => {
+                    let dataShow = c.dataCompra;
+                    if(c.dataCompra && c.dataCompra.includes('-')) {
+                        dataShow = c.dataCompra.split('-').reverse().join('/');
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${dataShow || 'Hoje'}</td>
+                            <td>${c.cpfCliente}</td>
+                            <td class="valor-destaque">R$ ${c.valorTotal.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error(error);
+                document.getElementById('tabelaVendas').innerHTML = '<tr><td colspan="3" style="color:red; text-align:center">Erro ao carregar vendas.</td></tr>';
+            }
+        }
+    </script>
+
+</body>
+</html>
