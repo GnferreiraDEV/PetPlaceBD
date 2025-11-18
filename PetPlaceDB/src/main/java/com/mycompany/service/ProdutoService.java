@@ -1,39 +1,66 @@
 package com.mycompany.service;
 
 import com.mycompany.model.Produto;
+import com.mycompany.model.ProdutoMongo;
 import com.mycompany.repository.ProdutoRepository;
+import com.mycompany.repository.ProdutoMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID; // <--- Importante para gerar o ID
+import java.util.UUID;
 
 @Service
 public class ProdutoService {
 
     @Autowired
-    private ProdutoRepository repository;
+    private ProdutoRepository mysqlRepository;
+
+    @Autowired
+    private ProdutoMongoRepository mongoRepository;
 
     public List<Produto> listarTodos() {
-        return repository.findAll();
+        return mysqlRepository.findAll();
     }
 
     public Produto buscarPorId(String id) {
-        return repository.findById(id).orElse(null);
+        return mysqlRepository.findById(id).orElse(null);
     }
 
     public Produto salvar(Produto p) {
-        // VERIFICAÇÃO: Se o produto não tem ID, cria um novo
+        // 1. Gera ID e Salva no MySQL
         if (p.getIdProduto() == null || p.getIdProduto().isEmpty()) {
-            // Gera algo como: PROD_a1b2c3d4
             String idGerado = "PROD_" + UUID.randomUUID().toString().substring(0, 8);
             p.setIdProduto(idGerado);
         }
 
-        return repository.save(p);
+        // Salva no MySQL
+        Produto salvoMysql = mysqlRepository.save(p);
+
+        // 2. Salva Cópia no Mongo
+        try {
+            ProdutoMongo copia = new ProdutoMongo();
+            copia.setNome(salvoMysql.getNome());
+            copia.setDescricao(salvoMysql.getDescricao());
+            copia.setPreco(salvoMysql.getPreco());
+
+            // --- CORREÇÃO AQUI ---
+            // Mudamos de .setEstoque() para .setQuantidadeEstoque()
+            copia.setQuantidadeEstoque(salvoMysql.getQuantidadeEstoque());
+
+            copia.setIdMysql(salvoMysql.getIdProduto());
+
+            mongoRepository.save(copia);
+            System.out.println(">>> Sucesso: Salvo no MySQL e Mongo!");
+
+        } catch (Exception e) {
+            System.err.println(">>> Aviso: Salvo no MySQL, mas erro no Mongo: " + e.getMessage());
+        }
+
+        return salvoMysql;
     }
 
     public void deletar(String id) {
-        repository.deleteById(id);
+        mysqlRepository.deleteById(id);
     }
 }

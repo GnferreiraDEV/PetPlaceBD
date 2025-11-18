@@ -1,7 +1,9 @@
 package com.mycompany.service;
 
 import com.mycompany.model.Cliente;
+import com.mycompany.model.ClienteMongo; // <--- Importe o modelo Mongo
 import com.mycompany.repository.ClienteRepository;
+import com.mycompany.repository.ClienteMongoRepository; // <--- Importe o repo Mongo
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,32 +12,46 @@ import java.util.List;
 @Service
 public class ClienteService {
 
-    private final ClienteRepository repository;
+    @Autowired
+    private ClienteRepository mysqlRepository;
 
     @Autowired
-    public ClienteService(ClienteRepository repository) {
-        this.repository = repository;
-    }
+    private ClienteMongoRepository mongoRepository; // Injeção do Mongo
 
-    // CREATE e UPDATE
-    // O Controller manda o objeto 'Cliente' inteiro, não variáveis soltas
+    // SALVAR (Híbrido: MySQL + Mongo)
     public Cliente salvar(Cliente c) {
-        return repository.save(c);
+        // 1. Salva no MySQL (Principal)
+        Cliente salvoMysql = mysqlRepository.save(c);
+
+        // 2. Salva cópia no MongoDB (Requisito)
+        try {
+            ClienteMongo copia = new ClienteMongo(
+                    salvoMysql.getCpf(),
+                    salvoMysql.getNome(),
+                    salvoMysql.getTelefone(),
+                    salvoMysql.getEmail(),
+                    salvoMysql.getEndereco()
+            );
+            mongoRepository.save(copia);
+            System.out.println(">>> Cliente salvo no MySQL e replicado no MongoDB!");
+        } catch (Exception e) {
+            System.err.println(">>> Erro ao salvar no Mongo: " + e.getMessage());
+        }
+
+        return salvoMysql;
     }
 
-    // READ (Lista)
-    // O Controller chama 'listarTodos', então o nome tem que ser igual
+    // --- Métodos de Leitura (Lê apenas do MySQL) ---
+
     public List<Cliente> listarTodos() {
-        return repository.findAll();
+        return mysqlRepository.findAll();
     }
 
-    // READ (Busca Única)
     public Cliente buscarPorCpf(String cpf) {
-        return repository.findById(cpf).orElse(null);
+        return mysqlRepository.findById(cpf).orElse(null);
     }
 
-    // DELETE
     public void deletar(String cpf) {
-        repository.deleteById(cpf);
+        mysqlRepository.deleteById(cpf);
     }
 }
