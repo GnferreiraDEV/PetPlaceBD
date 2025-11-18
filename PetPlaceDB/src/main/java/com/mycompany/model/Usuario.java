@@ -6,7 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "usuarios") // O nome da tabela no seu script SQL é minúsculo
+@Table(name = "usuarios")
 public class Usuario {
 
     @Id
@@ -22,12 +22,11 @@ public class Usuario {
     @Column(name = "senha")
     private String senha;
 
-    @Column(name = "id_grupo") // Mapeando direto como coluna para facilitar seu Controller atual
+    @Column(name = "id_grupo")
     private String id_grupo;
 
     public Usuario() {}
 
-    // Mantenha seus construtores e Getters/Setters aqui...
     public Usuario(String id_usuario, String nome, String login, String senha, String id_grupo) {
         this.id_usuario = id_usuario;
         this.nome = nome;

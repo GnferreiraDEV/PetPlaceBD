@@ -27,7 +27,6 @@ public class Servico {
 
     public Servico() {}
 
-    // Cole seus construtores e Getters/Setters abaixo...
     public Servico(String idServico, String descricao, double preco, boolean banho, boolean tosa) {
         this.idServico = idServico;
         this.descricao = descricao;

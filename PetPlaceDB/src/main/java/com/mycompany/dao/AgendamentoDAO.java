@@ -20,7 +20,7 @@ public class AgendamentoDAO {
         this.collection = db.getCollection("agendamentos");
     }
 
-    // CREATE
+
     public void salvar(Agendamento ag) {
         Document doc = new Document("_id", ag.getIdAgendamento())
                 .append("cpfCliente", ag.getCpfCliente())
@@ -34,7 +34,7 @@ public class AgendamentoDAO {
         collection.insertOne(doc);
     }
 
-    // UPDATE
+
     public void atualizar(Agendamento ag) {
         Bson filtro = Filters.eq("_id", ag.getIdAgendamento());
 
@@ -51,12 +51,12 @@ public class AgendamentoDAO {
         collection.updateOne(filtro, atualizacao);
     }
 
-    // DELETE
+
     public void deletar(String id) {
         collection.deleteOne(Filters.eq("_id", id));
     }
 
-    // READ – buscar por ID
+
     public Agendamento buscarPorId(String id) {
         Document doc = collection.find(Filters.eq("_id", id)).first();
         if (doc == null) return null;
@@ -73,7 +73,6 @@ public class AgendamentoDAO {
         );
     }
 
-    // READ – listar tudo
     public List<Agendamento> listarTodos() {
         List<Agendamento> lista = new ArrayList<>();
 

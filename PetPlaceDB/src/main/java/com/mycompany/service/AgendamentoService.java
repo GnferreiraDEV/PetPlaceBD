@@ -25,42 +25,32 @@ public class AgendamentoService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    // =====================================================================
-    // LÓGICA INTELIGENTE: Filtrar por permissão (Admin vê tudo, Cliente vê o dele)
-    // =====================================================================
     public List<Agendamento> listarPorPermissao(String userId) {
-        // 1. Busca quem é o usuário logado
         Usuario u = usuarioRepository.findById(userId).orElse(null);
 
-        if (u == null) return Collections.emptyList(); // Segurança
+        if (u == null) return Collections.emptyList();
 
-        // 2. Se for ADMIN, retorna TUDO
+
         if ("ADMIN".equalsIgnoreCase(u.getId_grupo())) {
             return repository.findAll();
         }
 
-        // 3. Se for CLIENTE, descobre o CPF através do email
-        // (O Login do usuário é o email, que deve ser igual ao email na tabela Cliente)
+
         Cliente c = clienteRepository.findByEmail(u.getLogin());
 
         if (c != null) {
-            // Retorna apenas os agendamentos desse CPF
+
             return repository.findByCpfCliente(c.getCpf());
         }
 
-        return Collections.emptyList(); // Não achou cliente vinculado
+        return Collections.emptyList();
     }
 
-    // =====================================================================
-    // MÉTODOS PADRÃO (CRUD)
-    // =====================================================================
 
-    // CREATE
     public void criarAgendamento(String cpf, String idServico, String data, String hora,
                                  String formaPagamento, double valor) {
 
         Agendamento ag = new Agendamento();
-        // Gera ID único com prefixo para ficar organizado
         ag.setIdAgendamento("AG_" + UUID.randomUUID().toString().substring(0, 8));
         ag.setCpfCliente(cpf);
         ag.setIdServico(idServico);
@@ -73,23 +63,21 @@ public class AgendamentoService {
         repository.save(ag);
     }
 
-    // READ (Busca única)
     public Agendamento buscarPorId(String id) {
         return repository.findById(id).orElse(null);
     }
 
-    // READ (Listar todos - Uso interno ou Admin direto)
+
     public List<Agendamento> listarTodos() {
         return repository.findAll();
     }
 
-    // UPDATE
+
     public void atualizarAgendamento(Agendamento ag) {
-        // O save do repository serve para atualizar também se o ID existir
+
         repository.save(ag);
     }
 
-    // DELETE
     public void deletarAgendamento(String id) {
         repository.deleteById(id);
     }

@@ -17,15 +17,13 @@ public class AgendamentoApiController {
     @Autowired
     private AgendamentoService service;
 
-    // GET: Listar (COM FILTRO DE PERMISSÃO)
     @GetMapping
     public ResponseEntity<List<Agendamento>> listar(@RequestHeader(value = "user-id", required = false) String userId) {
-        // Se não vier ID (acesso direto via navegador), retorna lista vazia por segurança
+
         if (userId == null) {
             return ResponseEntity.ok(List.of());
         }
 
-        // Chama o método inteligente que criamos no Service
         return ResponseEntity.ok(service.listarPorPermissao(userId));
     }
 
@@ -42,5 +40,4 @@ public class AgendamentoApiController {
         }
     }
 
-    // ... (Mantenha os métodos PUT e DELETE se já tiver, ou adicione se precisar) ...
 }

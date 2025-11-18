@@ -19,11 +19,9 @@ public class Produto {
     @Column(name = "DESCRICAO")
     private String descricao;
 
-    // MUDANÇA 1: De 'double' para 'Double' (Aceita Null)
     @Column(name = "PRECO")
     private Double preco;
 
-    // MUDANÇA 2: De 'int' para 'Integer' (Aceita Null)
     @Column(name = "QUANTIDADE_ESTOQUE")
     private Integer quantidadeEstoque;
 

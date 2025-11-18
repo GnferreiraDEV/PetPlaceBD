@@ -15,7 +15,6 @@ public class CompraDAO {
 
         try (Connection conn = MySQLConnectionFactory.getConnection()) {
 
-            // 1) CHAMA A PROCEDURE registrar_compra COM OUT PARAM
             String sqlCompra = "{CALL registrar_compra(?, ?, ?)}"; // 3º parâmetro é OUT
             try (CallableStatement cs = conn.prepareCall(sqlCompra)) {
                 cs.setString(1, compra.getCpfCliente());
@@ -23,12 +22,10 @@ public class CompraDAO {
                 cs.registerOutParameter(3, Types.VARCHAR); // OUT param para id
                 cs.executeUpdate();
 
-                // pega o id gerado pelo MySQL
                 String idGerado = cs.getString(3);
                 compra.setIdCompra(idGerado);
             }
 
-            // 2) INSERE OS ITENS
             String sqlItem = "INSERT INTO COMPRA_has_PRODUTO "
                     + "(COMPRA_idCOMPRA, PRODUTO_idPRODUTO, QUANTIDADE) VALUES (?, ?, ?)";
 

@@ -7,12 +7,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class UsuarioMongo {
 
     @Id
-    private String id; // ID interno do Mongo
+    private String id;
 
     private String nome;
-    private String email; // login
-    private String grupo; // ADMIN ou CLIENTE
-    private String idMysql; // Para ligar com o banco SQL
+    private String email;
+    private String grupo;
+    private String idMysql;
 
     public UsuarioMongo() {}
 
@@ -23,7 +23,6 @@ public class UsuarioMongo {
         this.idMysql = idMysql;
     }
 
-    // Getters e Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getNome() { return nome; }

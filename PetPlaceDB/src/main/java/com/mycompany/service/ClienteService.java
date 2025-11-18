@@ -16,14 +16,11 @@ public class ClienteService {
     private ClienteRepository mysqlRepository;
 
     @Autowired
-    private ClienteMongoRepository mongoRepository; // Injeção do Mongo
+    private ClienteMongoRepository mongoRepository;
 
-    // SALVAR (Híbrido: MySQL + Mongo)
     public Cliente salvar(Cliente c) {
-        // 1. Salva no MySQL (Principal)
         Cliente salvoMysql = mysqlRepository.save(c);
 
-        // 2. Salva cópia no MongoDB (Requisito)
         try {
             ClienteMongo copia = new ClienteMongo(
                     salvoMysql.getCpf(),
@@ -41,7 +38,6 @@ public class ClienteService {
         return salvoMysql;
     }
 
-    // --- Métodos de Leitura (Lê apenas do MySQL) ---
 
     public List<Cliente> listarTodos() {
         return mysqlRepository.findAll();

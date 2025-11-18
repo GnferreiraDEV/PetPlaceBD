@@ -9,14 +9,14 @@ import jakarta.persistence.Table;
 @Table(name = "AGENDAMENTO")
 public class Agendamento {
 
-    @Id // 3. Chave Primária
-    @Column(name = "idAGENDAMENTO") // Liga 'idAgendamento' com 'idAGENDAMENTO'
+    @Id
+    @Column(name = "idAGENDAMENTO")
     private String idAgendamento;
 
-    @Column(name = "CPF_CLIENTE") // Liga com a coluna do banco
+    @Column(name = "CPF_CLIENTE")
     private String cpfCliente;
 
-    @Column(name = "SERVICO_idSERVICO") // ATENÇÃO: No seu SQL está assim
+    @Column(name = "SERVICO_idSERVICO")
     private String idServico;
 
     @Column(name = "DATA_AGENDAMENTO")
@@ -34,10 +34,8 @@ public class Agendamento {
     @Column(name = "STATUS")
     private String status;
 
-    // Construtor Vazio (Obrigatório para o JPA)
     public Agendamento() {}
 
-    // Construtor Cheio
     public Agendamento(String idAgendamento, String cpfCliente, String idServico, String dataAgendamento,
                        String horaAgendamento, double valor, String formaPagamento, String status) {
         this.idAgendamento = idAgendamento;
@@ -50,7 +48,6 @@ public class Agendamento {
         this.status = status;
     }
 
-    // Getters e Setters (Iguais ao que você já tinha)
     public String getIdAgendamento() { return idAgendamento; }
     public void setIdAgendamento(String idAgendamento) { this.idAgendamento = idAgendamento; }
 

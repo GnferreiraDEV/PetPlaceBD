@@ -6,11 +6,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "CLIENTE") // Nome da tabela no banco
+@Table(name = "CLIENTE")
 public class Cliente {
 
     @Id
-    @Column(name = "CPF") // Nome da coluna no banco
+    @Column(name = "CPF")
     private String cpf;
 
     @Column(name = "NOME")
@@ -22,7 +22,7 @@ public class Cliente {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "ENDERECO") // Se no banco existe, aqui TEM que existir
+    @Column(name = "ENDERECO")
     private String endereco;
 
     public Cliente() {}
@@ -35,7 +35,6 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    // Getters e Setters
     public String getCpf() { return cpf; }
     public void setCpf(String cpf) { this.cpf = cpf; }
 

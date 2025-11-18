@@ -23,25 +23,18 @@ public class CompraService {
     @Autowired private UsuarioRepository usuarioRepository;
     @Autowired private ClienteRepository clienteRepository;
 
-    // =====================================================================
-    // 1. REALIZAR VENDA (O método que estava faltando!)
-    // =====================================================================
-    @Transactional // Garante que salva tudo ou nada
+    @Transactional
     public void realizarCompra(Compra compra) {
 
-        // A. Gera ID único e Data
         String idUnico = "CP_" + UUID.randomUUID().toString().substring(0, 8);
         compra.setIdCompra(idUnico);
 
-        // Se a data não vier do front, usa a de hoje
         if (compra.getDataCompra() == null) {
             compra.setDataCompra(LocalDate.now().toString());
         }
 
-        // B. Salva o Cabeçalho da Compra
         repository.save(compra);
 
-        // C. Salva os Itens um por um na tabela de ligação
         if (compra.getItens() != null) {
             for (ItemCompra item : compra.getItens()) {
                 repository.salvarItemCompra(
@@ -53,19 +46,15 @@ public class CompraService {
         }
     }
 
-    // =====================================================================
-    // 2. LISTAR (Com filtro de segurança)
-    // =====================================================================
+
     public List<Compra> listarPorPermissao(String userId) {
         Usuario u = usuarioRepository.findById(userId).orElse(null);
         if (u == null) return Collections.emptyList();
 
-        // Se for ADMIN, vê tudo
         if ("ADMIN".equalsIgnoreCase(u.getId_grupo())) {
             return repository.findAll();
         }
 
-        // Se for CLIENTE, vê só o dele
         Cliente c = clienteRepository.findByEmail(u.getLogin());
         if (c != null) {
             return repository.findByCpfCliente(c.getCpf());
@@ -73,7 +62,6 @@ public class CompraService {
         return Collections.emptyList();
     }
 
-    // Método auxiliar caso precise listar tudo sem filtro (opcional)
     public List<Compra> listarTodas() {
         return repository.findAll();
     }

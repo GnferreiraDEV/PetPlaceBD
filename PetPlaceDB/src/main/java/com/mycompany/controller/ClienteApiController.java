@@ -24,7 +24,7 @@ public class ClienteApiController {
 
     @PostMapping
     public ResponseEntity<?> salvar(@RequestBody Cliente c) {
-        // 1. DEBUG: Ver o que está chegando do site
+
         System.out.println("--- TENTANDO CADASTRAR CLIENTE ---");
         System.out.println("CPF: " + c.getCpf());
         System.out.println("Nome: " + c.getNome());
@@ -35,9 +35,9 @@ public class ClienteApiController {
             System.out.println(">>> SUCESSO! Cliente salvo.");
             return ResponseEntity.ok(novo);
         } catch (Exception e) {
-            // 2. DEBUG: Imprimir o erro real no console
+
             System.err.println(">>> ERRO AO SALVAR CLIENTE:");
-            e.printStackTrace(); // <--- ISSO VAI MOSTRAR O MOTIVO NO CONSOLE
+            e.printStackTrace();
 
             return ResponseEntity.badRequest().body(Map.of("erro", "Erro no servidor: " + e.getMessage()));
         }

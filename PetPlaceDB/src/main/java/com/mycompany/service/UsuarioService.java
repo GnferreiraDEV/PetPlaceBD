@@ -17,12 +17,11 @@ public class UsuarioService {
     private UsuarioRepository mysqlRepository;
 
     @Autowired
-    private UsuarioMongoRepository mongoRepository; // Injeta o Mongo
+    private UsuarioMongoRepository mongoRepository;
 
-    // REGISTRAR (Híbrido: MySQL + Mongo)
+
     public void registrarUsuario(String nome, String email, String senha, String tipo) {
 
-        // Validações básicas
         if (nome == null || nome.isBlank()) throw new RuntimeException("Nome é obrigatório!");
         if (email == null || email.isBlank()) throw new RuntimeException("Login é obrigatório!");
 
@@ -37,13 +36,11 @@ public class UsuarioService {
         u.setId_usuario(novoId);
         u.setNome(nome);
         u.setLogin(email);
-        u.setSenha(senha); // Salvando sem hash para facilitar seus testes
+        u.setSenha(senha);
         u.setId_grupo(tipo);
 
-        // 1. Salva no MySQL (Principal)
         mysqlRepository.save(u);
 
-        // 2. Salva cópia no MongoDB (Requisito)
         try {
             UsuarioMongo copia = new UsuarioMongo(
                     u.getNome(),
@@ -58,7 +55,6 @@ public class UsuarioService {
         }
     }
 
-    // LOGIN (Lê apenas do MySQL)
     public boolean login(String email, String senha) {
         Usuario u = mysqlRepository.findByLogin(email);
         if (u == null) return false;

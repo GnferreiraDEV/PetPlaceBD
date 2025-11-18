@@ -7,6 +7,6 @@ import java.util.List;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, String> {
-    // Novo método mágico: O Spring cria o SQL sozinho baseado no nome!
+
     List<Agendamento> findByCpfCliente(String cpfCliente);
 }

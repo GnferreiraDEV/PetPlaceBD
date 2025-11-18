@@ -12,21 +12,18 @@ public class Compra {
     @Column(name = "idCOMPRA")
     private String idCompra;
 
-    @Column(name = "CPF") // FK para Cliente
+    @Column(name = "CPF")
     private String cpfCliente;
 
     @Column(name = "DATA_COMPRA")
-    private String dataCompra; // Ou use LocalDate se preferir
+    private String dataCompra;
 
     @Column(name = "VALOR_TOTAL")
     private double valorTotal;
 
-    // @Transient significa: O JPA ignora isso na hora de ler a tabela COMPRA direto.
-    // Nós usaremos isso apenas para receber o JSON do front-end.
     @Transient
     private List<ItemCompra> itens = new ArrayList<>();
 
-    // --- Construtores ---
     public Compra() {}
 
     public Compra(String idCompra, String cpfCliente, String dataCompra, double valorTotal) {
@@ -36,7 +33,6 @@ public class Compra {
         this.valorTotal = valorTotal;
     }
 
-    // --- Getters e Setters ---
     public String getIdCompra() { return idCompra; }
     public void setIdCompra(String idCompra) { this.idCompra = idCompra; }
 

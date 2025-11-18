@@ -28,24 +28,19 @@ public class ProdutoService {
     }
 
     public Produto salvar(Produto p) {
-        // 1. Gera ID e Salva no MySQL
         if (p.getIdProduto() == null || p.getIdProduto().isEmpty()) {
             String idGerado = "PROD_" + UUID.randomUUID().toString().substring(0, 8);
             p.setIdProduto(idGerado);
         }
 
-        // Salva no MySQL
         Produto salvoMysql = mysqlRepository.save(p);
 
-        // 2. Salva Cópia no Mongo
         try {
             ProdutoMongo copia = new ProdutoMongo();
             copia.setNome(salvoMysql.getNome());
             copia.setDescricao(salvoMysql.getDescricao());
             copia.setPreco(salvoMysql.getPreco());
 
-            // --- CORREÇÃO AQUI ---
-            // Mudamos de .setEstoque() para .setQuantidadeEstoque()
             copia.setQuantidadeEstoque(salvoMysql.getQuantidadeEstoque());
 
             copia.setIdMysql(salvoMysql.getIdProduto());

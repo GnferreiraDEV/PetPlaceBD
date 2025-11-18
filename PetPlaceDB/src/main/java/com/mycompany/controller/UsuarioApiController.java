@@ -20,7 +20,6 @@ public class UsuarioApiController {
         this.service = service;
     }
 
-    // Endpoint de Login
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credenciais) {
         String email = credenciais.get("login");
@@ -29,8 +28,7 @@ public class UsuarioApiController {
         boolean sucesso = service.login(email, senha);
 
         if (sucesso) {
-            // BUSCA O USUÁRIO COMPLETO PARA RETORNAR OS DADOS DE PERMISSÃO
-            // Você precisa ter criado o método 'buscarPorLogin' no Service (veja abaixo)
+
             Usuario u = service.buscarPorLogin(email);
 
             return ResponseEntity.ok().body(Map.of(
@@ -38,8 +36,8 @@ public class UsuarioApiController {
                     "autenticado", true,
                     "usuario", email,
                     "nome", u.getNome(),
-                    "id_usuario", u.getId_usuario(), // <--- CRUCIAL: O Front-end vai guardar isso
-                    "grupo", u.getId_grupo()         // <--- CRUCIAL: Para saber se é ADMIN
+                    "id_usuario", u.getId_usuario(),
+                    "grupo", u.getId_grupo()
             ));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
@@ -49,7 +47,6 @@ public class UsuarioApiController {
         }
     }
 
-    // Endpoint de Registro
     @PostMapping("/registrar")
     public ResponseEntity<?> registrar(@RequestBody Usuario u) {
         try {

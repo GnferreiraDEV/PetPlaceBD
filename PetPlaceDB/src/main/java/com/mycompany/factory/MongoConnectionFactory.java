@@ -14,8 +14,7 @@ import com.mongodb.client.MongoDatabase;
  * @author Gustavo
  */
 public class MongoConnectionFactory {
-    
-    // SUA CONNECTION STRING DO ATLAS
+
     private static final String URI = 
         "mongodb+srv://Gnferreira:admin123@petplacebd.82fyloi.mongodb.net/?appName=PetPlaceBD";
 
@@ -25,7 +24,7 @@ public class MongoConnectionFactory {
         if (client == null) {
             client = MongoClients.create(URI);
         }
-        return client.getDatabase("PetPlaceBD");  // nome do seu banco
+        return client.getDatabase("PetPlaceBD");
     }
 }
 
