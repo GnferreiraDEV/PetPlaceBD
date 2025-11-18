@@ -1,4 +1,4 @@
-#PetPlace – Sistema de Gestão para Pet Shop
+PetPlace – Sistema de Gestão para Pet Shop
 Trabalho Final – Disciplina de Banco de Dados
 Universidade Católica de Brasília (UCB)
 
