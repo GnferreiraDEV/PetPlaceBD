@@ -1,38 +1,66 @@
 package com.mycompany.service;
 
-import com.mycompany.dao.ProdutoDAO;
 import com.mycompany.model.Produto;
+import com.mycompany.model.ProdutoMongo;
+import com.mycompany.repository.ProdutoRepository;
+import com.mycompany.repository.ProdutoMongoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
+@Service
 public class ProdutoService {
 
-    private final ProdutoDAO dao = new ProdutoDAO();
+    @Autowired
+    private ProdutoRepository mysqlRepository;
 
-    // CREATE
-    public void cadastrarProduto(String nome, String descricao, double preco, int quantidade) {
-        Produto p = new Produto(null, nome, descricao, preco, quantidade);
-        dao.salvar(p);
+    @Autowired
+    private ProdutoMongoRepository mongoRepository;
+
+    public List<Produto> listarTodos() {
+        return mysqlRepository.findAll();
     }
 
-    // READ (buscar)
-    public Produto buscarProduto(String id) {
-        return dao.buscarPorId(id);
+    public Produto buscarPorId(String id) {
+        return mysqlRepository.findById(id).orElse(null);
     }
 
-    // READ (listar todos)
-    public List<Produto> listarProdutos() {
-        return dao.listarTodos();
+    public Produto salvar(Produto p) {
+        // 1. Gera ID e Salva no MySQL
+        if (p.getIdProduto() == null || p.getIdProduto().isEmpty()) {
+            String idGerado = "PROD_" + UUID.randomUUID().toString().substring(0, 8);
+            p.setIdProduto(idGerado);
+        }
+
+        // Salva no MySQL
+        Produto salvoMysql = mysqlRepository.save(p);
+
+        // 2. Salva Cópia no Mongo
+        try {
+            ProdutoMongo copia = new ProdutoMongo();
+            copia.setNome(salvoMysql.getNome());
+            copia.setDescricao(salvoMysql.getDescricao());
+            copia.setPreco(salvoMysql.getPreco());
+
+            // --- CORREÇÃO AQUI ---
+            // Mudamos de .setEstoque() para .setQuantidadeEstoque()
+            copia.setQuantidadeEstoque(salvoMysql.getQuantidadeEstoque());
+
+            copia.setIdMysql(salvoMysql.getIdProduto());
+
+            mongoRepository.save(copia);
+            System.out.println(">>> Sucesso: Salvo no MySQL e Mongo!");
+
+        } catch (Exception e) {
+            System.err.println(">>> Aviso: Salvo no MySQL, mas erro no Mongo: " + e.getMessage());
+        }
+
+        return salvoMysql;
     }
 
-    // UPDATE
-    public void atualizarProduto(String id, String nome, String descricao, double preco, int quantidade) {
-        Produto p = new Produto(id, nome, descricao, preco, quantidade);
-        dao.atualizar(p);
-    }
-
-    // DELETE
-    public void deletarProduto(String id) {
-        dao.deletar(id);
+    public void deletar(String id) {
+        mysqlRepository.deleteById(id);
     }
 }

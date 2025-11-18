@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Venda Concluída - PetPlace</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .recibo-container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .icone-sucesso {
+            color: #28a745;
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .detalhes {
+            text-align: left;
+            margin: 30px 0;
+            border-top: 1px dashed #ddd;
+            border-bottom: 1px dashed #ddd;
+            padding: 20px 0;
+        }
+        .linha-detalhe {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        .total-destaque {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .btn-imprimir {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-imprimir:hover { background-color: #5a6268; }
+        
+        /* Esconde botões na hora de imprimir */
+        @media print {
+            .no-print { display: none; }
+            body { background-color: white; }
+            .recibo-container { box-shadow: none; margin-top: 0; border: 1px solid #ccc; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="recibo-container">
+        <div class="icone-sucesso">✓</div>
+        <h2>Venda Realizada!</h2>
+        <p>A transação foi processada com sucesso.</p>
+
+        <div class="detalhes">
+            <div class="linha-detalhe">
+                <span>Data:</span>
+                <strong id="dataVenda">--/--/----</strong>
+            </div>
+            <div class="linha-detalhe">
+                <span>Cliente (CPF):</span>
+                <strong id="cpfCliente">---</strong>
+            </div>
+            <div class="linha-detalhe">
+                <span>Qtd. Itens:</span>
+                <strong id="qtdItens">0</strong>
+            </div>
+            <div class="linha-detalhe" style="margin-top: 15px;">
+                <span>Valor Total:</span>
+                <span class="total-destaque">R$ <span id="valorTotal">0.00</span></span>
+            </div>
+        </div>
+
+        <div class="no-print">
+            <button onclick="window.print()" class="btn-imprimir">🖨️ Imprimir</button>
+            <a href="venda.html" class="btn-primary" style="text-decoration: none; display: inline-block; padding: 10px 20px; width: auto;">Nova Venda</a>
+            <br><br>
+            <a href="index.html" style="color: #666; font-size: 0.9rem;">Voltar ao Menu</a>
+        </div>
+    </div>
+
+    <script>
+        // Recupera os dados salvos no localStorage
+        const dadosVenda = JSON.parse(localStorage.getItem('dadosUltimaVenda'));
+
+        if (dadosVenda) {
+            document.getElementById('cpfCliente').innerText = dadosVenda.cpf;
+            document.getElementById('valorTotal').innerText = dadosVenda.total.toFixed(2);
+            document.getElementById('qtdItens').innerText = dadosVenda.qtd;
+            
+            // Data de hoje formatada
+            const hoje = new Date();
+            document.getElementById('dataVenda').innerText = hoje.toLocaleDateString('pt-BR') + ' ' + hoje.toLocaleTimeString('pt-BR');
+        } else {
+            // Se tentar entrar direto na página sem vender
+            alert('Nenhuma venda encontrada.');
+            window.location.href = 'venda.html';
+        }
+    </script>
+
+</body>
+</html>

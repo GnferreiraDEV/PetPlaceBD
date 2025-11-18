@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PetPlace</title>
+ <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="card-container">
+        <span class="logo-texto">🐾 PetPlace</span>
+        <h2>Bem-vindo de volta!</h2>
+
+        <div id="msgErro" class="mensagem-erro">
+            Login ou senha incorretos.
+        </div>
+
+        <form id="formLogin">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="Digite seu e-mail" required>
+            </div>
+
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" placeholder="Digite sua senha" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+
+        <div class="footer-link">
+            Ainda não tem conta? <a href="cadastro.html">Crie uma agora</a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Pega os elementos da tela
+        const form = document.getElementById('formLogin');
+        const msgErro = document.getElementById('msgErro');
+
+        // 2. Ouve o clique no botão "Entrar"
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Impede a página de recarregar sozinha
+            
+            // Limpa erros antigos
+            msgErro.style.display = 'none';
+            
+            // 3. Pega os dados digitados
+            const emailDigitado = document.getElementById('email').value;
+            const senhaDigitada = document.getElementById('senha').value;
+
+            // Monta o pacote para enviar pro Java
+            // IMPORTANTE: As chaves "login" e "senha" devem ser iguais ao Map no seu Controller Java
+            const dadosLogin = {
+                login: emailDigitado,
+                senha: senhaDigitada
+            };
+
+            try {
+                // 4. Envia para o Back-end (API)
+                const resposta = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosLogin)
+                });
+
+                // 5. Verifica se deu certo
+                if (resposta.ok) {
+                    const dadosUsuario = await resposta.json();
+                    
+                    // Salva o usuário no navegador para usarmos nas outras telas
+                    localStorage.setItem('usuarioLogado', JSON.stringify(dadosUsuario));
+                    
+                    // Redireciona para a página principal (Dashboard)
+                    window.location.href = "index.html"; 
+                } else {
+                    // Se deu erro (401)
+                    msgErro.textContent = "E-mail ou senha inválidos.";
+                    msgErro.style.display = 'block';
+                }
+            } catch (erro) {
+                console.error('Erro:', erro);
+                msgErro.textContent = "Erro de conexão com o servidor.";
+                msgErro.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>

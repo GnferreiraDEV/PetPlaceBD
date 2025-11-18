@@ -1,36 +1,57 @@
 package com.mycompany.service;
 
-import com.mycompany.dao.ClienteDAO;
 import com.mycompany.model.Cliente;
+import com.mycompany.model.ClienteMongo; // <--- Importe o modelo Mongo
+import com.mycompany.repository.ClienteRepository;
+import com.mycompany.repository.ClienteMongoRepository; // <--- Importe o repo Mongo
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 
+@Service
 public class ClienteService {
 
-    private final ClienteDAO dao = new ClienteDAO();
+    @Autowired
+    private ClienteRepository mysqlRepository;
 
-    // CREATE
-    public void registrarCliente(String cpf, String nome, String telefone, String email, String endereco) {
-        Cliente c = new Cliente(cpf, nome, telefone, email, endereco);
-        dao.salvar(c);
+    @Autowired
+    private ClienteMongoRepository mongoRepository; // Injeção do Mongo
+
+    // SALVAR (Híbrido: MySQL + Mongo)
+    public Cliente salvar(Cliente c) {
+        // 1. Salva no MySQL (Principal)
+        Cliente salvoMysql = mysqlRepository.save(c);
+
+        // 2. Salva cópia no MongoDB (Requisito)
+        try {
+            ClienteMongo copia = new ClienteMongo(
+                    salvoMysql.getCpf(),
+                    salvoMysql.getNome(),
+                    salvoMysql.getTelefone(),
+                    salvoMysql.getEmail(),
+                    salvoMysql.getEndereco()
+            );
+            mongoRepository.save(copia);
+            System.out.println(">>> Cliente salvo no MySQL e replicado no MongoDB!");
+        } catch (Exception e) {
+            System.err.println(">>> Erro ao salvar no Mongo: " + e.getMessage());
+        }
+
+        return salvoMysql;
     }
 
-    // READ
-    public Cliente buscarCliente(String cpf) {
-        return dao.buscarPorCpf(cpf);
+    // --- Métodos de Leitura (Lê apenas do MySQL) ---
+
+    public List<Cliente> listarTodos() {
+        return mysqlRepository.findAll();
     }
 
-    public List<Cliente> listar() {
-        return dao.listarTodos();
+    public Cliente buscarPorCpf(String cpf) {
+        return mysqlRepository.findById(cpf).orElse(null);
     }
 
-    // UPDATE
-    public void atualizarCliente(String cpf, String nome, String telefone, String email, String endereco) {
-        Cliente c = new Cliente(cpf, nome, telefone, email, endereco);
-        dao.atualizar(c);
-    }
-
-    // DELETE
-    public void deletarCliente(String cpf) {
-        dao.deletar(cpf);
+    public void deletar(String cpf) {
+        mysqlRepository.deleteById(cpf);
     }
 }

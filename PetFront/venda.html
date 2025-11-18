@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nova Venda - PetPlace</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Estilos específicos desta página */
+        .grid-venda { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .lista-produtos-venda { max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 6px; padding: 10px; }
+        .item-produto { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .item-produto:hover { background-color: #f0f8ff; }
+        .carrinho { background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px dashed #ccc; }
+        .total { font-size: 1.5rem; font-weight: bold; color: #28a745; text-align: right; margin-top: 15px; }
+        
+        /* Estilo do botão remover */
+        .btn-remover {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #c62828;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        .btn-remover:hover { background-color: #c62828; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="page-header">
+            <h2>🛒 Nova Venda</h2>
+            <a href="index.html" class="btn-voltar">Voltar</a>
+        </div>
+
+        <div class="grid-venda">
+            <div class="card-container" style="max-width: 100%;">
+                
+                <div class="form-group">
+                    <label>Cliente (CPF)</label>
+                    <input type="text" id="cpfCliente" placeholder="Digite o CPF do cliente" required>
+                </div>
+
+                <h3 style="margin-top: 20px;">Adicionar Produtos</h3>
+                <div id="listaProdutos" class="lista-produtos-venda">
+                    <p>Carregando produtos...</p>
+                </div>
+            </div>
+
+            <div class="carrinho">
+                <h3>Itens no Carrinho</h3>
+                <ul id="listaCarrinho" style="list-style: none; padding: 0; margin-top: 10px;">
+                    </ul>
+                <div class="total">Total: R$ <span id="valorTotal">0.00</span></div>
+                <button onclick="finalizarVenda()" class="btn-primary" style="margin-top: 20px;">Finalizar Venda</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carrinho = [];
+        let produtosDisponiveis = [];
+
+        // 1. Carrega produtos ao iniciar
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('http://localhost:8080/api/produtos');
+                produtosDisponiveis = await res.json();
+                renderizarListaProdutos();
+            } catch (erro) {
+                console.error("Erro ao buscar produtos:", erro);
+                document.getElementById('listaProdutos').innerHTML = '<p style="color:red">Erro ao carregar produtos.</p>';
+            }
+        });
+
+        // 2. Mostra produtos na lista para clicar
+        function renderizarListaProdutos() {
+            const div = document.getElementById('listaProdutos');
+            div.innerHTML = '';
+            produtosDisponiveis.forEach(p => {
+                div.innerHTML += `
+                    <div class="item-produto" onclick="adicionarAoCarrinho('${p.idProduto}')">
+                        <span>${p.nome}</span>
+                        <strong>R$ ${p.preco.toFixed(2)}</strong>
+                    </div>
+                `;
+            });
+        }
+
+        // 3. Adiciona ao carrinho
+        function adicionarAoCarrinho(id) {
+            const produto = produtosDisponiveis.find(p => p.idProduto === id);
+            
+            // Verifica se já está no carrinho
+            const itemExistente = carrinho.find(item => item.idProduto === id);
+            
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({
+                    idProduto: produto.idProduto,
+                    nome: produto.nome,
+                    preco: produto.preco,
+                    quantidade: 1
+                });
+            }
+            atualizarCarrinho();
+        }
+
+        // 4. Remove do carrinho (NOVO)
+        function removerItem(id) {
+            const item = carrinho.find(i => i.idProduto === id);
+            if (item) {
+                if (item.quantidade > 1) {
+                    item.quantidade--;
+                } else {
+                    carrinho = carrinho.filter(i => i.idProduto !== id);
+                }
+                atualizarCarrinho();
+            }
+        }
+
+        // 5. Atualiza visual do carrinho
+        function atualizarCarrinho() {
+            const ul = document.getElementById('listaCarrinho');
+            const spanTotal = document.getElementById('valorTotal');
+            ul.innerHTML = '';
+            let total = 0;
+
+            carrinho.forEach(item => {
+                const subtotal = item.preco * item.quantidade;
+                total += subtotal;
+                
+                ul.innerHTML += `
+                    <li style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                        <div style="flex-grow: 1;">
+                            <strong>${item.quantidade}x</strong> ${item.nome}
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>R$ ${subtotal.toFixed(2)}</span>
+                            <button onclick="removerItem('${item.idProduto}')" class="btn-remover" title="Remover">✖</button>
+                        </div>
+                    </li>
+                `;
+            });
+
+            spanTotal.innerText = total.toFixed(2);
+        }
+
+        // 6. Envia para a API
+// 6. Envia para a API e Redireciona
+        async function finalizarVenda() {
+            const cpf = document.getElementById('cpfCliente').value;
+            
+            // Validação simples
+            if (!cpf || carrinho.length === 0) {
+                alert('Preencha o CPF e adicione produtos!');
+                return;
+            }
+
+            // Calcula o total para enviar e salvar
+            const totalVenda = parseFloat(document.getElementById('valorTotal').innerText);
+
+            const venda = {
+                cpfCliente: cpf,
+                valorTotal: totalVenda,
+                itens: carrinho.map(item => ({
+                    idProduto: item.idProduto,
+                    quantidade: item.quantidade
+                }))
+            };
+
+            try {
+                const res = await fetch('http://localhost:8080/api/compras', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(venda)
+                });
+
+                if (res.ok) {
+                    // --- AQUI ESTÁ A MUDANÇA ---
+                    
+                    // 1. Salva os dados para a próxima página ler
+                    localStorage.setItem('dadosUltimaVenda', JSON.stringify({
+                        cpf: cpf,
+                        total: totalVenda,
+                        qtd: carrinho.reduce((acc, item) => acc + item.quantidade, 0) // Soma total de itens
+                    }));
+
+                    // 2. Redireciona para o comprovante
+                    window.location.href = "comprovante.html";
+                    
+                    // ---------------------------
+                } else {
+                    const erro = await res.json();
+                    alert('Erro: ' + (erro.mensagem || 'Verifique o CPF (o cliente existe?).'));
+                }
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro de conexão com o servidor.');
+            }
+        }
+    </script>
+</body>
+</html>

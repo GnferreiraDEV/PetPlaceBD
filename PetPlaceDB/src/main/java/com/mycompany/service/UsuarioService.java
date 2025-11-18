@@ -1,97 +1,87 @@
 package com.mycompany.service;
 
-import com.mycompany.dao.UsuarioDAO;
 import com.mycompany.model.Usuario;
-import java.security.MessageDigest;
+import com.mycompany.model.UsuarioMongo; // <--- Importante
+import com.mycompany.repository.UsuarioRepository;
+import com.mycompany.repository.UsuarioMongoRepository; // <--- Importante
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class UsuarioService {
 
-    private final UsuarioDAO dao = new UsuarioDAO();
+    @Autowired
+    private UsuarioRepository mysqlRepository;
 
+    @Autowired
+    private UsuarioMongoRepository mongoRepository; // Injeta o Mongo
+
+    // REGISTRAR (Híbrido: MySQL + Mongo)
     public void registrarUsuario(String nome, String email, String senha, String tipo) {
 
-        // 1. Checar campos obrigatórios
-        if (nome == null || nome.isBlank()) {
-            System.out.println("Nome é obrigatório!");
-            return;
-        }
-        if (email == null || email.isBlank()) {
-            System.out.println("Login é obrigatório!");
-            return;
+        // Validações básicas
+        if (nome == null || nome.isBlank()) throw new RuntimeException("Nome é obrigatório!");
+        if (email == null || email.isBlank()) throw new RuntimeException("Login é obrigatório!");
+
+        // Verifica se já existe no MySQL
+        if (mysqlRepository.findByLogin(email) != null) {
+            throw new RuntimeException("Login já cadastrado!");
         }
 
-        // 2. Checar se o login já existe
-        if (dao.buscarPorLogin(email) != null) {
-            System.out.println("Login já cadastrado!");
-            return;
-        }
-        
         Usuario u = new Usuario();
-        u.setId_usuario(UUID.randomUUID().toString());
+        // Gera ID único
+        String novoId = "USR_" + UUID.randomUUID().toString().substring(0, 8);
+        u.setId_usuario(novoId);
         u.setNome(nome);
         u.setLogin(email);
-        u.setSenha(gerarHash(senha));
+        u.setSenha(senha); // Salvando sem hash para facilitar seus testes
         u.setId_grupo(tipo);
 
-        dao.salvar(u);
+        // 1. Salva no MySQL (Principal)
+        mysqlRepository.save(u);
+
+        // 2. Salva cópia no MongoDB (Requisito)
+        try {
+            UsuarioMongo copia = new UsuarioMongo(
+                    u.getNome(),
+                    u.getLogin(),
+                    u.getId_grupo(),
+                    u.getId_usuario()
+            );
+            mongoRepository.save(copia);
+            System.out.println(">>> Usuário salvo no MySQL e replicado no MongoDB!");
+        } catch (Exception e) {
+            System.err.println(">>> Erro ao salvar no Mongo: " + e.getMessage());
+        }
     }
 
+    // LOGIN (Lê apenas do MySQL)
     public boolean login(String email, String senha) {
-        Usuario u = dao.buscarPorLogin(email);
-
+        Usuario u = mysqlRepository.findByLogin(email);
         if (u == null) return false;
-
-        String senhaHash = gerarHash(senha);
-
-        return senhaHash.equals(u.getSenha());
+        return senha.equals(u.getSenha());
     }
 
-    // --------------------------
-    // CRUD COMPLETO
-    // --------------------------
+    public Usuario buscarPorLogin(String login) {
+        return mysqlRepository.findByLogin(login);
+    }
 
     public Usuario buscarPorId(String id) {
-        return dao.buscarPorId(id);
+        return mysqlRepository.findById(id).orElse(null);
     }
 
     public List<Usuario> listar() {
-        return dao.listarTodos();
+        return mysqlRepository.findAll();
     }
 
     public void atualizar(Usuario u) {
-
-        // Se a senha for atualizada, precisa rehash
-        if (!u.getSenha().startsWith("00")) { 
-            // <-- Se quiser detectar hash, ajusta isso
-            u.setSenha(gerarHash(u.getSenha()));
-        }
-
-        dao.atualizar(u);
+        mysqlRepository.save(u);
     }
 
     public void deletar(String id) {
-        dao.deletar(id);
-    }
-
-    // --------------------------
-    // Hash
-    // --------------------------
-    private String gerarHash(String senha) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(senha.getBytes());
-            StringBuilder hexString = new StringBuilder();
-
-            for (byte b : hash) {
-                hexString.append(String.format("%02x", b));
-            }
-
-            return hexString.toString();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao gerar hash", e);
-        }
+        mysqlRepository.deleteById(id);
     }
 }

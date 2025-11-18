@@ -1,22 +1,33 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.mycompany.model;
 
-/**
- *
- * @author Gustavo
- */
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "usuarios") // O nome da tabela no seu script SQL é minúsculo
 public class Usuario {
+
+    @Id
+    @Column(name = "id_usuario")
     private String id_usuario;
+
+    @Column(name = "nome")
     private String nome;
+
+    @Column(name = "login")
     private String login;
+
+    @Column(name = "senha")
     private String senha;
+
+    @Column(name = "id_grupo") // Mapeando direto como coluna para facilitar seu Controller atual
     private String id_grupo;
 
     public Usuario() {}
 
+    // Mantenha seus construtores e Getters/Setters aqui...
     public Usuario(String id_usuario, String nome, String login, String senha, String id_grupo) {
         this.id_usuario = id_usuario;
         this.nome = nome;

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes - PetPlace</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <div class="page-header">
+            <h2>👥 Gerenciar Clientes</h2>
+            <a href="index.html" class="btn-voltar">Voltar</a>
+        </div>
+
+        <div class="card-container" style="max-width: 100%; margin-bottom: 30px; text-align: left;">
+            <h3>Novo Cliente</h3>
+            <form id="formCliente" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                
+                <div class="form-group">
+                    <label>CPF</label>
+                    <input type="text" id="cpf" placeholder="000.000.000-00" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="nome" placeholder="Nome do cliente" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" id="telefone" placeholder="(00) 00000-0000">
+                </div>
+
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="email" placeholder="cliente@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <input type="text" id="endereco" placeholder="Rua, Número, Bairro">
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: end;">
+                    <button type="submit" class="btn-primary" style="margin-top: 0;">Cadastrar Cliente</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CPF</th>
+                        <th>Nome</th>
+                        <th>Contato</th>
+                        <th>Endereço</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/api/clientes';
+
+        // Carregar clientes ao abrir a página
+        document.addEventListener('DOMContentLoaded', listarClientes);
+
+        async function listarClientes() {
+            try {
+                const res = await fetch(API_URL);
+                const clientes = await res.json();
+                
+                const tabela = document.getElementById('tabelaCorpo');
+                tabela.innerHTML = '';
+
+                clientes.forEach(c => {
+                    tabela.innerHTML += `
+                        <tr>
+                            <td><strong>${c.cpf}</strong></td>
+                            <td>${c.nome}</td>
+                            <td>
+                                ${c.telefone || '-'}<br>
+                                <small style="color: #666;">${c.email || ''}</small>
+                            </td>
+                            <td>${c.endereco || '-'}</td>
+                            <td>
+                                <button onclick="deletar('${c.cpf}')" class="btn-acao">Excluir</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (erro) {
+                console.error('Erro ao listar:', erro);
+            }
+        }
+
+        document.getElementById('formCliente').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const cliente = {
+                cpf: document.getElementById('cpf').value,
+                nome: document.getElementById('nome').value,
+                telefone: document.getElementById('telefone').value,
+                email: document.getElementById('email').value,
+                endereco: document.getElementById('endereco').value
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(cliente)
+                });
+                
+                if(res.ok) {
+                    alert('Cliente cadastrado com sucesso!');
+                    document.getElementById('formCliente').reset();
+                    listarClientes();
+                } else {
+                    alert('Erro ao cadastrar. Verifique se o CPF já existe.');
+                }
+            } catch (erro) {
+                console.error(erro);
+                alert('Erro de conexão.');
+            }
+        });
+
+        async function deletar(cpf) {
+            if(confirm('Tem certeza que deseja excluir este cliente?')) {
+                try {
+                    await fetch(`${API_URL}/${cpf}`, { method: 'DELETE' });
+                    listarClientes();
+                } catch (erro) {
+                    alert('Erro ao deletar.');
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,10 +1,28 @@
 package com.mycompany.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "CLIENTE") // Nome da tabela no banco
 public class Cliente {
+
+    @Id
+    @Column(name = "CPF") // Nome da coluna no banco
     private String cpf;
+
+    @Column(name = "NOME")
     private String nome;
+
+    @Column(name = "TELEFONE")
     private String telefone;
+
+    @Column(name = "EMAIL")
     private String email;
+
+    @Column(name = "ENDERECO") // Se no banco existe, aqui TEM que existir
     private String endereco;
 
     public Cliente() {}
@@ -17,7 +35,7 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    // GETTERS E SETTERS
+    // Getters e Setters
     public String getCpf() { return cpf; }
     public void setCpf(String cpf) { this.cpf = cpf; }
 
