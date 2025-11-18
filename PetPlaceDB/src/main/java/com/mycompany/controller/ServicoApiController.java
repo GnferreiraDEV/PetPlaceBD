@@ -3,7 +3,7 @@ package com.mycompany.controller;
 import com.mycompany.model.Servico;
 import com.mycompany.service.ServicoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*; // Importa todas as anotações web
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 

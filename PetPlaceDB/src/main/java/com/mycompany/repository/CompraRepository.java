@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List; // <--- Importante: Adicione este import!
+import java.util.List;
 
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, String> {

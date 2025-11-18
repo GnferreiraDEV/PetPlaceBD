@@ -1,9 +1,9 @@
 package com.mycompany.service;
 
 import com.mycompany.model.Cliente;
-import com.mycompany.model.ClienteMongo; // <--- Importe o modelo Mongo
+import com.mycompany.model.ClienteMongo;
 import com.mycompany.repository.ClienteRepository;
-import com.mycompany.repository.ClienteMongoRepository; // <--- Importe o repo Mongo
+import com.mycompany.repository.ClienteMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,9 +1,9 @@
 package com.mycompany.service;
 
 import com.mycompany.model.Usuario;
-import com.mycompany.model.UsuarioMongo; // <--- Importante
+import com.mycompany.model.UsuarioMongo;
 import com.mycompany.repository.UsuarioRepository;
-import com.mycompany.repository.UsuarioMongoRepository; // <--- Importante
+import com.mycompany.repository.UsuarioMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,13 +25,11 @@ public class UsuarioService {
         if (nome == null || nome.isBlank()) throw new RuntimeException("Nome é obrigatório!");
         if (email == null || email.isBlank()) throw new RuntimeException("Login é obrigatório!");
 
-        // Verifica se já existe no MySQL
         if (mysqlRepository.findByLogin(email) != null) {
             throw new RuntimeException("Login já cadastrado!");
         }
 
         Usuario u = new Usuario();
-        // Gera ID único
         String novoId = "USR_" + UUID.randomUUID().toString().substring(0, 8);
         u.setId_usuario(novoId);
         u.setNome(nome);

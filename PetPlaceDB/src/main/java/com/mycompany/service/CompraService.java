@@ -2,7 +2,7 @@ package com.mycompany.service;
 
 import com.mycompany.model.Cliente;
 import com.mycompany.model.Compra;
-import com.mycompany.model.ItemCompra; // Classe auxiliar dos itens
+import com.mycompany.model.ItemCompra;
 import com.mycompany.model.Usuario;
 import com.mycompany.repository.ClienteRepository;
 import com.mycompany.repository.CompraRepository;
